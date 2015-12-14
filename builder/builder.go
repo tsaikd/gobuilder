@@ -3,14 +3,12 @@ package builder
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/tsaikd/KDGoLib/cliutil/cmdutil"
 	"github.com/tsaikd/KDGoLib/cliutil/flagutil"
-	"github.com/tsaikd/KDGoLib/futil"
 	"github.com/tsaikd/KDGoLib/version"
 )
 
@@ -34,20 +32,13 @@ func mainAction(c *cli.Context) (err error) {
 	timeFormat := c.GlobalString(flagTimeFormat.Name)
 
 	// ensure godep command exist
-	if _, err = exec.LookPath("godep"); err != nil {
-		if err = runCommand("go", "get", "-v", "github.com/tools/godep"); err != nil {
-			return
-		}
-		if _, err = exec.LookPath("godep"); err != nil {
-			return
-		}
+	if err = ensureGodep(c); err != nil {
+		return
 	}
 
 	// restore godep before go build
-	if futil.IsExist(godepJSONPath) {
-		if err = runCommand("godep", "restore"); err != nil {
-			return
-		}
+	if err = godepRestore(); err != nil {
+		return
 	}
 
 	// get dependent lib
@@ -64,7 +55,7 @@ func mainAction(c *cli.Context) (err error) {
 	githash := stdout[:gitHashLength]
 
 	// get Godeps/Godeps.json content
-	godeps, err := getGodeps()
+	godeps, err := getGodepsJSON()
 	if err != nil {
 		return
 	}
