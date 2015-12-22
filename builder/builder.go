@@ -36,13 +36,13 @@ func mainAction(c *cli.Context) (err error) {
 		return
 	}
 
-	// restore godep before go build
-	if err = godepRestore(); err != nil {
+	// get dependent lib
+	if err = runCommand("go", "get", "-v"); err != nil {
 		return
 	}
 
-	// get dependent lib
-	if err = runCommand("go", "get", "-v"); err != nil {
+	// restore godep before go build
+	if err = godepRestore(); err != nil {
 		return
 	}
 
