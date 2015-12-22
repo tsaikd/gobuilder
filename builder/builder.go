@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
 	"github.com/tsaikd/KDGoLib/cliutil/cmdutil"
 	"github.com/tsaikd/KDGoLib/cliutil/flagutil"
@@ -25,11 +26,23 @@ var (
 		Value:  time.RFC1123,
 		Usage:  "Build time format",
 	})
+	flagDebug = flagutil.AddBoolFlag(cli.BoolFlag{
+		Name:  "d,debug",
+		Usage: "Show debug level messages",
+	})
+	flagTest = flagutil.AddBoolFlag(cli.BoolFlag{
+		Name:  "t,test",
+		Usage: "Also download the packages required to build the tests",
+	})
 )
 
 func mainAction(c *cli.Context) (err error) {
 	gitHashLength := c.GlobalInt(flagHashLength.Name)
 	timeFormat := c.GlobalString(flagTimeFormat.Name)
+
+	if c.GlobalBool("d") {
+		logger.Level = logrus.DebugLevel
+	}
 
 	// ensure godep command exist
 	if err = ensureGodep(c); err != nil {
@@ -37,7 +50,11 @@ func mainAction(c *cli.Context) (err error) {
 	}
 
 	// get dependent lib
-	if err = runCommand("go", "get", "-v"); err != nil {
+	getArgs := []string{"get", "-v"}
+	if c.GlobalBool("t") {
+		getArgs = append(getArgs, "-t")
+	}
+	if err = runCommand("go", getArgs...); err != nil {
 		return
 	}
 

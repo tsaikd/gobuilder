@@ -8,6 +8,7 @@ import (
 )
 
 func runCommandBuffer(name string, arg ...string) (stdout string, stderr string, err error) {
+	logger.Debugln(name, arg)
 	cmd := exec.Command(name, arg...)
 	bufout := bytes.Buffer{}
 	buferr := bytes.Buffer{}
@@ -20,6 +21,7 @@ func runCommandBuffer(name string, arg ...string) (stdout string, stderr string,
 }
 
 func runCommand(name string, arg ...string) (err error) {
+	logger.Debugln(name, arg)
 	cmd := exec.Command(name, arg...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
