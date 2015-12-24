@@ -34,7 +34,22 @@ var (
 		Name:  "t,test",
 		Usage: "Also download the packages required to build the tests",
 	})
+	flagGetFirst = flagutil.AddBoolFlag(cli.BoolFlag{
+		Name:  "get-first",
+		Usage: "Run go get before godep restore",
+	})
 )
+
+func goGet(c *cli.Context) (err error) {
+	getArgs := []string{"get", "-v"}
+	if c.GlobalBool("t") {
+		getArgs = append(getArgs, "-t")
+	}
+	if err = runCommand("go", getArgs...); err != nil {
+		return
+	}
+	return
+}
 
 func mainAction(c *cli.Context) (err error) {
 	gitHashLength := c.GlobalInt(flagHashLength.Name)
@@ -49,18 +64,26 @@ func mainAction(c *cli.Context) (err error) {
 		return
 	}
 
-	// get dependent lib
-	getArgs := []string{"get", "-v"}
-	if c.GlobalBool("t") {
-		getArgs = append(getArgs, "-t")
-	}
-	if err = runCommand("go", getArgs...); err != nil {
-		return
-	}
+	if c.GlobalBool(flagGetFirst.Name) {
+		// get dependent lib
+		if err = goGet(c); err != nil {
+			return
+		}
 
-	// restore godep before go build
-	if err = godepRestore(); err != nil {
-		return
+		// restore godep before go build
+		if err = godepRestore(); err != nil {
+			return
+		}
+	} else {
+		// restore godep before go build
+		if err = godepRestore(); err != nil {
+			return
+		}
+
+		// get dependent lib
+		if err = goGet(c); err != nil {
+			return
+		}
 	}
 
 	// get current git hash
