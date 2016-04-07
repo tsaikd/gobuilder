@@ -1,6 +1,8 @@
 package builder
 
 import (
+	"os"
+
 	"github.com/codegangsta/cli"
 	"github.com/tsaikd/KDGoLib/errutil"
 )
@@ -17,6 +19,9 @@ func init() {
 
 func actionWrapper(action func(context *cli.Context) error) func(context *cli.Context) {
 	return func(context *cli.Context) {
-		errutil.TraceSkip(action(context), 1)
+		if err := action(context); err != nil {
+			errutil.TraceSkip(action(context), 1)
+			os.Exit(1)
+		}
 	}
 }

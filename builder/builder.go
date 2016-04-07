@@ -64,14 +64,14 @@ func getIdentify(c *cli.Context) (identify string, err error) {
 func mainAction(c *cli.Context) (err error) {
 	timeFormat := c.GlobalString(flagTimeFormat.Name)
 
+	// restore dependency by godep
+	if err = godepRestore(); err != nil {
+		return errutil.New("restore godeps dependency failed", err)
+	}
+
 	// get dependent lib
 	if err = goGet(c); err != nil {
 		return errutil.New("get get dependent packages failed", err)
-	}
-
-	// restore godep before go build
-	if err = godepRestore(); err != nil {
-		return errutil.New("restore godeps dependency failed", err)
 	}
 
 	// get current git hash

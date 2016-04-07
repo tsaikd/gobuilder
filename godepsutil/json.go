@@ -94,11 +94,8 @@ func (t *JSON) addDep(importPath string, srcroot string) (err error) {
 
 // NewJSON create godeps json config by analyzing dir
 func NewJSON(dir string) (result JSON, err error) {
-	// fix dir to absolute dir path for ImportDir
-	if dir == "." {
-		if dir, err = os.Getwd(); err != nil {
-			return
-		}
+	if dir, err = fixDir(dir); err != nil {
+		return
 	}
 
 	pkg, err := buildContext.ImportDir(dir, 0)
@@ -123,4 +120,13 @@ func NewJSON(dir string) (result JSON, err error) {
 	}
 
 	return
+}
+
+// fix dir to absolute dir path for ImportDir
+func fixDir(dir string) (result string, err error) {
+	if dir == "." {
+		return os.Getwd()
+	}
+
+	return dir, nil
 }
