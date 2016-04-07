@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
 	"github.com/tsaikd/KDGoLib/cliutil/cmdutil"
 	"github.com/tsaikd/KDGoLib/cliutil/flagutil"
@@ -27,10 +26,6 @@ var (
 		EnvVar: "GO_BUILDER_TIME_FORMAT",
 		Value:  time.RFC1123,
 		Usage:  "Build time format",
-	})
-	flagDebug = flagutil.AddBoolFlag(cli.BoolFlag{
-		Name:  "d,debug",
-		Usage: "Show debug level messages",
 	})
 	flagTest = flagutil.AddBoolFlag(cli.BoolFlag{
 		Name:  "t,test",
@@ -62,30 +57,26 @@ func getIdentify(c *cli.Context) (identify string, err error) {
 func mainAction(c *cli.Context) (err error) {
 	timeFormat := c.GlobalString(flagTimeFormat.Name)
 
-	if c.GlobalBool("d") {
-		logger.Level = logrus.DebugLevel
-	}
-
 	// get dependent lib
 	if err = goGet(c); err != nil {
-		return
+		return errutil.New("get get dependent packages failed", err)
 	}
 
 	// restore godep before go build
 	if err = godepRestore(); err != nil {
-		return
+		return errutil.New("restore godeps dependency failed", err)
 	}
 
 	// get current git hash
 	githash, err := getIdentify(c)
 	if err != nil {
-		return
+		return errutil.New("get repository identify failed", err)
 	}
 
 	// get Godeps/Godeps.json content
 	godeps, err := getGodepsJSON()
 	if err != nil {
-		return
+		return errutil.New("get repository godeps info failed", err)
 	}
 
 	// prepare ldflags for go build
@@ -106,7 +97,7 @@ func mainAction(c *cli.Context) (err error) {
 
 	// go build with ldflags
 	if err = runCommand("go", "build", "-ldflags", ldflags); err != nil {
-		return
+		return errutil.New("go build failed", err)
 	}
 
 	return

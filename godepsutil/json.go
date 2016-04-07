@@ -7,7 +7,13 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/tools/go/vcs"
+)
+
+// errors
+var (
+	ErrorGetRepoInfo1 = errutil.NewFactory("get repository info failed for %q")
 )
 
 var buildContext = build.Default
@@ -57,7 +63,7 @@ func (t *JSON) addDep(importPath string, srcroot string) (err error) {
 	// get import package identify
 	repo, err := vcs.RepoRootForImportPath(importPath, false)
 	if err != nil {
-		return
+		return ErrorGetRepoInfo1.New(err, importPath)
 	}
 	rev, err := repo.VCS.Identify(filepath.Join(srcroot, repo.Root))
 	if err != nil {
@@ -105,7 +111,7 @@ func NewJSON(dir string) (result JSON, err error) {
 
 	repo, err := vcs.RepoRootForImportPath(pkg.ImportPath, false)
 	if err != nil {
-		return
+		return result, ErrorGetRepoInfo1.New(err, pkg.ImportPath)
 	}
 	if result.Rev, err = repo.VCS.Identify(dir); err != nil {
 		return
