@@ -10,7 +10,9 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/tsaikd/KDGoLib/cliutil/cmdutil"
 	"github.com/tsaikd/KDGoLib/cliutil/flagutil"
+	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/KDGoLib/version"
+	"github.com/tsaikd/gobuilder/godepsutil"
 )
 
 var (
@@ -34,10 +36,6 @@ var (
 		Name:  "t,test",
 		Usage: "Also download the packages required to build the tests",
 	})
-	flagGetFirst = flagutil.AddBoolFlag(cli.BoolFlag{
-		Name:  "get-first",
-		Usage: "Run go get before godep restore",
-	})
 )
 
 func goGet(c *cli.Context) (err error) {
@@ -51,48 +49,38 @@ func goGet(c *cli.Context) (err error) {
 	return
 }
 
+func getIdentify(c *cli.Context) (identify string, err error) {
+	hashLength := c.GlobalInt(flagHashLength.Name)
+	godepsJSON, err := godepsutil.NewJSON(".")
+	if err != nil {
+		return
+	}
+
+	return godepsJSON.Rev[:hashLength], nil
+}
+
 func mainAction(c *cli.Context) (err error) {
-	gitHashLength := c.GlobalInt(flagHashLength.Name)
 	timeFormat := c.GlobalString(flagTimeFormat.Name)
 
 	if c.GlobalBool("d") {
 		logger.Level = logrus.DebugLevel
 	}
 
-	// ensure godep command exist
-	if err = ensureGodep(c); err != nil {
+	// get dependent lib
+	if err = goGet(c); err != nil {
 		return
 	}
 
-	if c.GlobalBool(flagGetFirst.Name) {
-		// get dependent lib
-		if err = goGet(c); err != nil {
-			return
-		}
-
-		// restore godep before go build
-		if err = godepRestore(); err != nil {
-			return
-		}
-	} else {
-		// restore godep before go build
-		if err = godepRestore(); err != nil {
-			return
-		}
-
-		// get dependent lib
-		if err = goGet(c); err != nil {
-			return
-		}
+	// restore godep before go build
+	if err = godepRestore(); err != nil {
+		return
 	}
 
 	// get current git hash
-	stdout, stderr, err := runCommandBuffer("git", "rev-parse", "HEAD")
+	githash, err := getIdentify(c)
 	if err != nil {
-		logger.Fatalln(stderr)
 		return
 	}
-	githash := stdout[:gitHashLength]
 
 	// get Godeps/Godeps.json content
 	godeps, err := getGodepsJSON()
@@ -134,5 +122,5 @@ func Main() {
 	app.Flags = flagutil.AllFlags()
 	app.Commands = cmdutil.AllCommands()
 
-	app.Run(os.Args)
+	errutil.Trace(app.Run(os.Args))
 }
