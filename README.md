@@ -1,6 +1,8 @@
 # gobuilder
 Go application builder
 
+[![Build Status](https://travis-ci.org/tsaikd/gobuilder.svg?branch=master)](https://travis-ci.org/tsaikd/gobuilder)
+
 ## Install
 ```
 go get -v "github.com/tsaikd/gobuilder"
