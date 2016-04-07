@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	version.VERSION = "0.0.4"
+	version.VERSION = "0.0.5"
 
 	cmdutil.AddCommand(cli.Command{
 		Name:   "version",
