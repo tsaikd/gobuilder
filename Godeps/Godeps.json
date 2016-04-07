@@ -1,0 +1,14 @@
+{
+	"ImportPath": "github.com/tsaikd/gobuilder",
+	"GoVersion": "go1.6",
+	"Deps": [
+		{
+			"ImportPath": "github.com/tsaikd/KDGoLib",
+			"Rev": "d67b76beb588007ee6b7eb7f09d40ef778331d42"
+		},
+		{
+			"ImportPath": "github.com/tsaikd/tools",
+			"Rev": "288c8463e5e4cfbb0a33b4dd144caae072fac223"
+		}
+	]
+}
