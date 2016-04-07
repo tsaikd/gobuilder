@@ -27,6 +27,10 @@ var (
 		Value:  time.RFC1123,
 		Usage:  "Build time format",
 	})
+	flagAll = flagutil.AddBoolFlag(cli.BoolFlag{
+		Name:  "a,all",
+		Usage: "Go get all sub-packages",
+	})
 	flagTest = flagutil.AddBoolFlag(cli.BoolFlag{
 		Name:  "t,test",
 		Usage: "Also download the packages required to build the tests",
@@ -37,6 +41,9 @@ func goGet(c *cli.Context) (err error) {
 	getArgs := []string{"get", "-v"}
 	if c.GlobalBool("t") {
 		getArgs = append(getArgs, "-t")
+	}
+	if c.GlobalBool("a") {
+		getArgs = append(getArgs, "./...")
 	}
 	if err = runCommand("go", getArgs...); err != nil {
 		return
