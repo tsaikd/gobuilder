@@ -11,6 +11,7 @@ import (
 	"github.com/tsaikd/KDGoLib/cliutil/flagutil"
 	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/KDGoLib/version"
+	"github.com/tsaikd/gobuilder/executil"
 	"github.com/tsaikd/gobuilder/godepsutil"
 )
 
@@ -45,7 +46,7 @@ func goGet(c *cli.Context) (err error) {
 	if c.GlobalBool("a") {
 		getArgs = append(getArgs, "./...")
 	}
-	if err = runCommand("go", getArgs...); err != nil {
+	if err = executil.Run("go", getArgs...); err != nil {
 		return
 	}
 	return
@@ -103,7 +104,7 @@ func mainAction(c *cli.Context) (err error) {
 	ldflags := strings.Join(ldflagPairs, " ")
 
 	// go build with ldflags
-	if err = runCommand("go", "build", "-ldflags", ldflags); err != nil {
+	if err = executil.Run("go", "build", "-ldflags", ldflags); err != nil {
 		return errutil.New("go build failed", err)
 	}
 

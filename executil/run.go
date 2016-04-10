@@ -1,9 +1,23 @@
-package builder
+package executil
 
 import (
 	"os"
 	"os/exec"
 )
+
+// default config
+var (
+	Stdout = os.Stdout
+	Stderr = os.Stderr
+)
+
+// Run command with default config
+func Run(name string, arg ...string) (err error) {
+	cmd := exec.Command(name, arg...)
+	cmd.Stdout = Stdout
+	cmd.Stderr = Stderr
+	return cmd.Run()
+}
 
 // deprecated
 // func runCommandBuffer(name string, arg ...string) (stdout string, stderr string, err error) {
@@ -17,10 +31,3 @@ import (
 // 	stderr = strings.TrimSpace(buferr.String())
 // 	return
 // }
-
-func runCommand(name string, arg ...string) (err error) {
-	cmd := exec.Command(name, arg...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
-}
