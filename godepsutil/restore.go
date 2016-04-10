@@ -7,6 +7,7 @@ import (
 
 	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/KDGoLib/futil"
+	"github.com/tsaikd/gobuilder/executil"
 	"github.com/tsaikd/tools/go/vcs"
 )
 
@@ -63,15 +64,14 @@ func restorePackage(srcroot string, importPath string, rev string) (err error) {
 	}
 
 	dir := filepath.Join(srcroot, repo.Root)
-	if futil.IsExist(dir) {
-		if err = repo.VCS.TagSync(dir, rev); err != nil {
-			return errutil.New("vcs tag sync failed", err)
+	if !futil.IsExist(dir) {
+		if err = executil.Run("go", "get", repo.Root); err != nil {
+			return errutil.New("go build failed", err)
 		}
-		return nil
 	}
 
-	if err = repo.VCS.CreateAtRev(dir, "https://"+repo.Root, rev); err != nil {
-		return errutil.New("vcs create at rev failed", err)
+	if err = repo.VCS.TagSync(dir, rev); err != nil {
+		return errutil.New("vcs tag sync failed", err)
 	}
 	return nil
 }
