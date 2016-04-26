@@ -11,6 +11,11 @@ import (
 	"github.com/tsaikd/tools/go/vcs"
 )
 
+// errors
+var (
+	ErrorIgnored = errutil.NewFactory("ignored error")
+)
+
 // Restore package dependency by package Godeps.json
 func Restore(dir string) (err error) {
 	if dir, err = fixDir(dir); err != nil {
@@ -65,13 +70,16 @@ func restorePackage(srcroot string, importPath string, rev string) (err error) {
 
 	dir := filepath.Join(srcroot, repo.Root)
 	if !futil.IsExist(dir) {
-		if err = executil.Run("go", "get", repo.Root); err != nil {
-			return errutil.New("go build failed", err)
-		}
+		err = executil.Run("go", "get", repo.Root)
+		errutil.TraceWrap(err, ErrorIgnored.New(nil))
 	}
 
 	if err = repo.VCS.TagSync(dir, rev); err != nil {
-		return errutil.New("vcs tag sync failed", err)
+		err = executil.Run("go", "get", "-u", repo.Root)
+		errutil.TraceWrap(err, ErrorIgnored.New(nil))
+		if err = repo.VCS.TagSync(dir, rev); err != nil {
+			return errutil.New("vcs tag sync failed", err)
+		}
 	}
 	return nil
 }
