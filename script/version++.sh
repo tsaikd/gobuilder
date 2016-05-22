@@ -1,7 +1,7 @@
 #!/bin/bash
 
 gitroot="$(git rev-parse --show-toplevel)"
-versionfile="${gitroot}/builder/version.go"
+versionfile="${gitroot}/version.go"
 
 currentversion="$(cat "${versionfile}" | awk '/version\.VERSION/{gsub("\"", "", $3);print $3}')"
 nextversion="${currentversion%.*}.$(awk -F '.' '{print $3+1}' <<< "${currentversion}")"

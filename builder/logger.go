@@ -1,9 +1,6 @@
 package builder
 
 import (
-	"os"
-
-	"github.com/codegangsta/cli"
 	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/KDGoLib/runtimecaller"
 )
@@ -18,13 +15,4 @@ func RuntimeCallerFilterStopCliPackage(callinfo runtimecaller.CallInfo) (valid b
 
 func init() {
 	errutil.AddRuntimeCallerFilter(RuntimeCallerFilterStopCliPackage)
-}
-
-func actionWrapper(action func(context *cli.Context) error) func(context *cli.Context) {
-	return func(context *cli.Context) {
-		if err := action(context); err != nil {
-			errutil.TraceSkip(action(context), 1)
-			os.Exit(1)
-		}
-	}
 }

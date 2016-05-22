@@ -4,11 +4,11 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/tsaikd/KDGoLib",
-			"Rev": "b89d09672d2326fb2b355bb74099cfe7bec3b909"
+			"Rev": "443a5595b685fe588255bc1ef0c0a2e061e0fc53"
 		},
 		{
 			"ImportPath": "github.com/tsaikd/tools",
-			"Rev": "288c8463e5e4cfbb0a33b4dd144caae072fac223"
+			"Rev": "ab34394050623052a88bbefb498628448220dfb0"
 		}
 	]
 }
