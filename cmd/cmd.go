@@ -37,7 +37,7 @@ func init() {
 			Destination: &flagTest,
 		},
 	)
-	cmder.Action = cmder.WrapAction(action)
+	cmder.Action = cmder.WrapMainAction(action)
 }
 
 var flagHashLen int
