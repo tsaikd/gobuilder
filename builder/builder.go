@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/gobuilder/executil"
 	"github.com/tsaikd/gobuilder/godepsutil"
@@ -16,29 +17,37 @@ var flagAll bool
 var flagTest bool
 
 // Build golang application source code
-func Build(hashLen int, timeFormat string, all bool, test bool) (err error) {
+func Build(hashLen int, timeFormat string, all bool, test bool, debug bool) (err error) {
 	flagHashLen = hashLen
 	flagTimeFormat = timeFormat
 	flagAll = all
 	flagTest = test
 
+	if debug {
+		logger.Level = logrus.DebugLevel
+	}
+
 	// restore dependency by godep
+	logger.Debugln("restore godeps dependency")
 	if err = godepRestore(); err != nil {
 		return errutil.New("restore godeps dependency failed", err)
 	}
 
 	// get dependent lib
+	logger.Debugln("go get dependent packages")
 	if err = goGet(); err != nil {
-		return errutil.New("get get dependent packages failed", err)
+		return errutil.New("go get dependent packages failed", err)
 	}
 
 	// get current git hash
+	logger.Debugln("get project version hash")
 	githash, err := getIdentify()
 	if err != nil {
 		return errutil.New("get repository identify failed", err)
 	}
 
 	// get Godeps/Godeps.json content
+	logger.Debugln("get current godeps info")
 	godeps, err := getGodepsJSON()
 	if err != nil {
 		return errutil.New("get repository godeps info failed", err)
@@ -61,6 +70,7 @@ func Build(hashLen int, timeFormat string, all bool, test bool) (err error) {
 	ldflags := strings.Join(ldflagPairs, " ")
 
 	// go build with ldflags
+	logger.Debugln("run go build")
 	if err = executil.Run("go", "build", "-ldflags", ldflags); err != nil {
 		return errutil.New("go build failed", err)
 	}

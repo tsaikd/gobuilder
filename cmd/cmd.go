@@ -36,6 +36,18 @@ func init() {
 			Usage:       "Also download the packages required to build the tests",
 			Destination: &flagTest,
 		},
+		cli.BoolFlag{
+			Name:        "debug",
+			Usage:       "Run in debug mode",
+			Destination: &flagDebug,
+		},
+		cli.BoolFlag{
+			Name:        "travis",
+			EnvVar:      "TRAVIS",
+			Usage:       "Run in travis server, imply debug",
+			Destination: &flagTravis,
+			Hidden:      true,
+		},
 	)
 	cmder.Action = cmder.WrapMainAction(action)
 }
@@ -44,7 +56,9 @@ var flagHashLen int
 var flagTimeFormat string
 var flagAll bool
 var flagTest bool
+var flagDebug bool
+var flagTravis bool
 
 func action(c *cli.Context) (err error) {
-	return builder.Build(flagHashLen, flagTimeFormat, flagAll, flagTest)
+	return builder.Build(flagHashLen, flagTimeFormat, flagAll, flagTest, flagDebug || flagTravis)
 }
