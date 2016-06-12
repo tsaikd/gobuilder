@@ -15,7 +15,7 @@ var (
 )
 
 // Check package dependency version by package Godeps.json
-func Check(dir string) (err error) {
+func Check(dir string, all bool) (err error) {
 	if dir, err = fixDir(dir); err != nil {
 		return
 	}
@@ -30,13 +30,45 @@ func Check(dir string) (err error) {
 		return
 	}
 
-	for _, dep := range godepsJSON.Deps {
-		if err = checkPackage(pkg.SrcRoot, dep.ImportPath, dep.Rev); err != nil {
+	done := map[string]bool{}
+	todo := []JSON{}
+
+	if err = checkJSON(godepsJSON, pkg.SrcRoot, done, &todo); err != nil {
+		return
+	}
+
+	if !all {
+		return
+	}
+
+	for len(todo) > 0 {
+		dojson := todo[0]
+		todo = todo[1:]
+		if err = checkJSON(dojson, pkg.SrcRoot, done, &todo); err != nil {
 			return
 		}
 	}
 
 	return
+}
+
+func checkJSON(godepsJSON JSON, srcroot string, done map[string]bool, todo *[]JSON) (err error) {
+	for _, dep := range godepsJSON.Deps {
+		if _, exist := done[dep.ImportPath]; exist {
+			continue
+		}
+
+		if err = checkPackage(srcroot, dep.ImportPath, dep.Rev); err != nil {
+			return
+		}
+		done[dep.ImportPath] = true
+
+		var subjson JSON
+		if subjson, err = parsePackageGoDeps(filepath.Join(srcroot, dep.ImportPath)); err == nil {
+			*todo = append(*todo, subjson)
+		}
+	}
+	return nil
 }
 
 func checkPackage(srcroot string, importPath string, rev string) (err error) {
