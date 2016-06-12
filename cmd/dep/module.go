@@ -1,4 +1,4 @@
-package module
+package dep
 
 import (
 	"github.com/codegangsta/cli"
@@ -6,13 +6,10 @@ import (
 	"github.com/tsaikd/gobuilder/godepsutil"
 )
 
-func init() {
-	cmder.Commands = append(cmder.Commands, cli.Command{
-		Name:   "dep",
-		Usage:  "Check dependencies version",
-		Action: cmder.WrapAction(action),
-	})
-}
+// Module info
+var Module = cmder.NewModule("dep").
+	SetUsage("Check dependencies version").
+	SetAction(action)
 
 func action(c *cli.Context) (err error) {
 	return godepsutil.Check(".")

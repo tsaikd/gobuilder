@@ -8,10 +8,10 @@ import (
 	"github.com/tsaikd/gobuilder/builder"
 )
 
-func init() {
-	cmder.Name = "gobuilder"
-	cmder.Usage = "Go application builder"
-	cmder.Flags = append(cmder.Flags,
+// Module info
+var Module = cmder.NewModule("gobuilder").
+	SetUsage("Go application builder").
+	AddFlag(
 		cli.IntFlag{
 			Name:        "hashlen",
 			EnvVar:      "GO_BUILDER_HASH_LENGTH",
@@ -48,9 +48,8 @@ func init() {
 			Destination: &flagTravis,
 			Hidden:      true,
 		},
-	)
-	cmder.Action = cmder.WrapMainAction(action)
-}
+	).
+	SetAction(action)
 
 var flagHashLen int
 var flagTimeFormat string
