@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/codegangsta/cli"
 	"github.com/tsaikd/KDGoLib/cliutil/cmdutil"
 	"github.com/tsaikd/KDGoLib/version"
+	"gopkg.in/urfave/cli.v2"
 )
 
 func init() {

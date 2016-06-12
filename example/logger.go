@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/codegangsta/cli"
 	"github.com/tsaikd/KDGoLib/logutil"
+	"gopkg.in/urfave/cli.v2"
 )
 
 var (

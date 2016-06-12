@@ -3,10 +3,10 @@ package main
 import (
 	"os"
 
-	"github.com/codegangsta/cli"
 	"github.com/tsaikd/KDGoLib/cliutil/cmdutil"
 	"github.com/tsaikd/KDGoLib/cliutil/flagutil"
 	"github.com/tsaikd/KDGoLib/version"
+	"gopkg.in/urfave/cli.v2"
 )
 
 func mainAction(c *cli.Context) (err error) {

@@ -1,9 +1,9 @@
 package dep
 
 import (
-	"github.com/codegangsta/cli"
 	"github.com/tsaikd/KDGoLib/cliutil/cmder"
 	"github.com/tsaikd/gobuilder/godepsutil"
+	"gopkg.in/urfave/cli.v2"
 )
 
 // Module info
