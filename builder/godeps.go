@@ -14,7 +14,7 @@ var (
 
 func godepRestore() (err error) {
 	if futil.IsExist(godepJSONPath) {
-		return godepsutil.Restore(".")
+		return godepsutil.Restore(".", flagAll)
 	}
 	return
 }

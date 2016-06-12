@@ -10,12 +10,12 @@ import (
 
 // RuntimeCallerFilterStopCliPackage filter CallInfo to stop after reach cli package
 func RuntimeCallerFilterStopCliPackage(callinfo runtimecaller.CallInfo) (valid bool, stop bool) {
-	switch callinfo.PackageName {
+	switch callinfo.PackageName() {
 	case "github.com/codegangsta/cli",
 		"github.com/urfave/cli":
 		return false, true
 	default:
-		if strings.HasPrefix(callinfo.PackageName, "gopkg.in/urfave/cli") {
+		if strings.HasPrefix(callinfo.PackageName(), "gopkg.in/urfave/cli") {
 			return false, true
 		}
 		return true, false
