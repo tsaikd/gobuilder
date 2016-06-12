@@ -5,43 +5,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/tsaikd/KDGoLib/errutil"
+	"github.com/tsaikd/KDGoLib/logutil"
 	"github.com/tsaikd/gobuilder/executil"
 	"github.com/tsaikd/gobuilder/godepsutil"
 )
 
-var flagHashLen int
-var flagTimeFormat string
-var flagAll bool
-var flagTest bool
-
 // Build golang application source code
-func Build(hashLen int, timeFormat string, all bool, test bool, debug bool) (err error) {
-	flagHashLen = hashLen
-	flagTimeFormat = timeFormat
-	flagAll = all
-	flagTest = test
-
-	if debug {
-		logger.Level = logrus.DebugLevel
-	}
-
-	// restore dependency by godep
-	logger.Debugln("restore godeps dependency")
-	if err = godepRestore(); err != nil {
-		return errutil.New("restore godeps dependency failed", err)
-	}
-
-	// get dependent lib
-	logger.Debugln("go get dependent packages")
-	if err = goGet(); err != nil {
-		return errutil.New("go get dependent packages failed", err)
-	}
-
+func Build(logger logutil.LevelLogger, hashLen int, timeFormat string) (err error) {
 	// get current git hash
 	logger.Debugln("get project version hash")
-	githash, err := getIdentify()
+	githash, err := getIdentify(hashLen)
 	if err != nil {
 		return errutil.New("get repository identify failed", err)
 	}
@@ -57,7 +31,7 @@ func Build(hashLen int, timeFormat string, all bool, test bool, debug bool) (err
 	var ldflagPairs []string
 	ldflagPairs = append(ldflagPairs, fmt.Sprintf(
 		`-X "github.com/tsaikd/KDGoLib/version.BUILDTIME=%s"`,
-		time.Now().Format(flagTimeFormat),
+		time.Now().Format(timeFormat),
 	))
 	ldflagPairs = append(ldflagPairs, fmt.Sprintf(
 		`-X "github.com/tsaikd/KDGoLib/version.GITCOMMIT=%s"`,
@@ -78,25 +52,11 @@ func Build(hashLen int, timeFormat string, all bool, test bool, debug bool) (err
 	return
 }
 
-func goGet() (err error) {
-	getArgs := []string{"get", "-v"}
-	if flagTest {
-		getArgs = append(getArgs, "-t")
-	}
-	if flagAll {
-		getArgs = append(getArgs, "./...")
-	}
-	if err = executil.Run("go", getArgs...); err != nil {
-		return
-	}
-	return
-}
-
-func getIdentify() (identify string, err error) {
+func getIdentify(hashLen int) (identify string, err error) {
 	godepsJSON, err := godepsutil.NewJSON(".")
 	if err != nil {
 		return
 	}
 
-	return godepsJSON.Rev[:flagHashLen], nil
+	return godepsJSON.Rev[:hashLen], nil
 }

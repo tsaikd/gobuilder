@@ -1,10 +1,9 @@
-package builder
+package logger
 
 import (
 	"strings"
 
 	"github.com/tsaikd/KDGoLib/errutil"
-	"github.com/tsaikd/KDGoLib/logutil"
 	"github.com/tsaikd/KDGoLib/runtimecaller"
 )
 
@@ -25,5 +24,3 @@ func RuntimeCallerFilterStopCliPackage(callinfo runtimecaller.CallInfo) (valid b
 func init() {
 	errutil.AddRuntimeCallerFilter(RuntimeCallerFilterStopCliPackage)
 }
-
-var logger = logutil.DefaultLogger
