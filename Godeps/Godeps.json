@@ -4,7 +4,7 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/tsaikd/KDGoLib",
-			"Rev": "90e3013835b19e69d492c469b70332e5befd30c6"
+			"Rev": "664f9f258d69f89252e72c69e92b3b6895b39951"
 		},
 		{
 			"ImportPath": "github.com/tsaikd/tools",

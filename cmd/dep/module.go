@@ -2,6 +2,7 @@ package dep
 
 import (
 	"github.com/tsaikd/KDGoLib/cliutil/cmder"
+	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/gobuilder/cmd/flagall"
 	"github.com/tsaikd/gobuilder/godepsutil"
 	"gopkg.in/urfave/cli.v2"
@@ -16,5 +17,11 @@ var Module = cmder.NewModule("dep").
 	SetAction(action)
 
 func action(c *cli.Context) (err error) {
-	return godepsutil.Check(".", flagall.All())
+	if err = godepsutil.Check(".", flagall.All()); err != nil {
+		if godepsutil.ErrorDepRevMismatch3.In(err) {
+			return errutil.New("Check dependencies failed")
+		}
+		return
+	}
+	return nil
 }

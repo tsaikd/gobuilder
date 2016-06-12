@@ -32,34 +32,41 @@ func Check(dir string, all bool) (err error) {
 
 	done := map[string]bool{}
 	todo := []JSON{}
+	mismatches := []error{}
 
-	if err = checkJSON(godepsJSON, pkg.SrcRoot, done, &todo); err != nil {
+	if err = checkJSON(godepsJSON, pkg.SrcRoot, done, &todo, &mismatches); err != nil {
 		return
 	}
 
-	if !all {
-		return
-	}
-
-	for len(todo) > 0 {
-		dojson := todo[0]
-		todo = todo[1:]
-		if err = checkJSON(dojson, pkg.SrcRoot, done, &todo); err != nil {
-			return
+	if all {
+		for len(todo) > 0 {
+			dojson := todo[0]
+			todo = todo[1:]
+			if err = checkJSON(dojson, pkg.SrcRoot, done, &todo, &mismatches); err != nil {
+				return
+			}
 		}
 	}
 
-	return
+	for _, err = range mismatches {
+		errutil.Trace(err)
+	}
+
+	return errutil.NewErrors(mismatches...)
 }
 
-func checkJSON(godepsJSON JSON, srcroot string, done map[string]bool, todo *[]JSON) (err error) {
+func checkJSON(godepsJSON JSON, srcroot string, done map[string]bool, todo *[]JSON, mismatches *[]error) (err error) {
 	for _, dep := range godepsJSON.Deps {
 		if _, exist := done[dep.ImportPath]; exist {
 			continue
 		}
 
 		if err = checkPackage(srcroot, dep.ImportPath, dep.Rev); err != nil {
-			return
+			if ErrorDepRevMismatch3.Match(err) {
+				*mismatches = append(*mismatches, err)
+			} else {
+				return
+			}
 		}
 		done[dep.ImportPath] = true
 
@@ -91,5 +98,5 @@ func checkPackage(srcroot string, importPath string, rev string) (err error) {
 		return ErrorDepRevMismatch3.New(nil, repo.Root, rev, identify)
 	}
 
-	return
+	return nil
 }
