@@ -23,30 +23,22 @@ $ gobuilder
 $ ./example version
 {
 	"version": "0.0.1",
-	"buildtime": "Thu, 07 Apr 2016 23:11:53 CST",
-	"gitcommit": "e8579c",
+	"buildtime": "Mon, 13 Jun 2016 02:48:34 CST",
+	"gitcommit": "b0ab42",
 	"godeps": {
 		"Deps": [
 			{
-				"ImportPath": "github.com/codegangsta/cli",
-				"Rev": "565493f259bf868adb54d45d5f4c68d405117adf"
-			},
-			{
 				"ImportPath": "github.com/tsaikd/KDGoLib",
-				"Rev": "eabe0bda1bd0c304b889d5b34ad1e99f7808d93f"
+				"Rev": "90b33fbfd7bf82557a32a829e7286df3bd25d277"
 			},
 			{
-				"ImportPath": "github.com/Sirupsen/logrus",
-				"Rev": "4b6ea7319e214d98c938f12692336f7ca9348d6b"
-			},
-			{
-				"ImportPath": "github.com/codegangsta/inject",
-				"Rev": "33e0aa1cb7c019ccc3fbe049a8262a6403d30504"
+				"ImportPath": "gopkg.in/urfave/cli.v2",
+				"Rev": "1b5ad735df034545a2ce018d348a814d406fc258"
 			}
 		],
-		"GoVersion": "go1.6",
+		"GoVersion": "go1.6.2",
 		"ImportPath": "github.com/tsaikd/gobuilder/example",
-		"Rev": "e8579c0205c585d33151a203235ea65515daca4b"
+		"Rev": "b0ab42c30a95bcc4e094ac3cc040c4911b3da6db"
 	}
 }
 ```
