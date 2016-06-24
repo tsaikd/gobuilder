@@ -5,7 +5,7 @@ Go application builder
 
 ## Install
 ```
-go get -v "github.com/tsaikd/gobuilder"
+go get -u -v "github.com/tsaikd/gobuilder"
 ```
 
 ## Insert [version package](https://github.com/tsaikd/KDGoLib/tree/master/version) code
