@@ -16,36 +16,11 @@ var (
 
 // Check package dependency version by package Godeps.json
 func Check(dir string, all bool) (err error) {
-	if dir, err = fixDir(dir); err != nil {
-		return
-	}
-
-	godepsJSON, err := parsePackageGoDeps(dir)
-	if err != nil {
-		return
-	}
-
-	pkg, err := buildContext.ImportDir(dir, 0)
-	if err != nil {
-		return
-	}
-
 	done := map[string]bool{}
-	todo := []JSON{}
 	mismatches := []error{}
 
-	if err = checkJSON(godepsJSON, pkg.SrcRoot, done, &todo, &mismatches); err != nil {
+	if err = checkDir(dir, all, done, &mismatches); err != nil {
 		return
-	}
-
-	if all {
-		for len(todo) > 0 {
-			dojson := todo[0]
-			todo = todo[1:]
-			if err = checkJSON(dojson, pkg.SrcRoot, done, &todo, &mismatches); err != nil {
-				return
-			}
-		}
 	}
 
 	for _, err = range mismatches {
@@ -55,27 +30,73 @@ func Check(dir string, all bool) (err error) {
 	return errutil.NewErrors(mismatches...)
 }
 
-func checkJSON(godepsJSON JSON, srcroot string, done map[string]bool, todo *[]JSON, mismatches *[]error) (err error) {
-	for _, dep := range godepsJSON.Deps {
-		if _, exist := done[dep.ImportPath]; exist {
-			continue
-		}
+func checkDir(dir string, all bool, done map[string]bool, mismatches *[]error) (err error) {
+	if dir, err = fixDir(dir); err != nil {
+		return
+	}
 
-		if err = checkPackage(srcroot, dep.ImportPath, dep.Rev); err != nil {
-			if ErrorDepRevMismatch3.Match(err) {
-				*mismatches = append(*mismatches, err)
-			} else {
-				return
-			}
+	godepsJSON, err := parsePackageGoDeps(dir)
+	if err != nil {
+		return
+	}
+
+	if err = checkJSON(godepsJSON, dir, all, done, mismatches); err != nil {
+		return
+	}
+
+	return
+}
+
+func checkJSON(godepsJSON JSON, dir string, all bool, done map[string]bool, mismatches *[]error) (err error) {
+	pkg, err := buildContext.ImportDir(dir, 0)
+	if err != nil {
+		return
+	}
+
+	for _, dep := range godepsJSON.Deps {
+		if done[dep.ImportPath] {
+			continue
 		}
 		done[dep.ImportPath] = true
 
-		var subjson JSON
-		if subjson, err = parsePackageGoDeps(filepath.Join(srcroot, dep.ImportPath)); err == nil {
-			*todo = append(*todo, subjson)
+		var deproot string
+		srcroots := genVendorsRoot(dir, pkg.SrcRoot)
+		if deproot, err = checkPackageRoots(srcroots, dep.ImportPath, dep.Rev); err != nil {
+			switch errutil.FactoryOf(err) {
+			case ErrorDepRevMismatch3:
+				*mismatches = append(*mismatches, err)
+			default:
+				return
+			}
+		}
+
+		if all {
+			var subjson JSON
+			deppath := filepath.Join(deproot, dep.ImportPath)
+			if subjson, err = parsePackageGoDeps(deppath); err == nil {
+				if err = checkJSON(subjson, deppath, all, done, mismatches); err != nil {
+					return
+				}
+			}
 		}
 	}
 	return nil
+}
+
+func checkPackageRoots(srcroots []string, importPath string, rev string) (pkgroot string, err error) {
+	for _, srcroot := range srcroots {
+		if err = checkPackage(srcroot, importPath, rev); err != nil {
+			switch errutil.FactoryOf(err) {
+			case ErrorDepNoFound1:
+				continue
+			default:
+				return "", err
+			}
+		} else {
+			return srcroot, nil
+		}
+	}
+	return "", ErrorDepNoFound1.New(nil, importPath)
 }
 
 func checkPackage(srcroot string, importPath string, rev string) (err error) {
@@ -99,4 +120,14 @@ func checkPackage(srcroot string, importPath string, rev string) (err error) {
 	}
 
 	return nil
+}
+
+func genVendorsRoot(dir string, srcroot string) []string {
+	roots := []string{}
+	for len(dir) > len(srcroot) {
+		roots = append(roots, filepath.Join(dir, "vendor"))
+		dir = filepath.Dir(dir)
+	}
+	roots = append(roots, srcroot)
+	return roots
 }
