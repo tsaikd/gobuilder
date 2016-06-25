@@ -13,10 +13,10 @@ var (
 )
 
 // Restore godeps dependency
-func Restore(logger logutil.LevelLogger, all bool) (err error) {
+func Restore(logger logutil.LevelLogger, all bool, tovendor bool) (err error) {
 	logger.Debugln("restore godeps dependencies")
 	if futil.IsExist(godepJSONPath) {
-		return godepsutil.Restore(".", all)
+		return godepsutil.Restore(".", all, tovendor)
 	}
 	return
 }

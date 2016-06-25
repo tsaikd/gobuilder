@@ -2,6 +2,8 @@ package builder
 
 import (
 	"fmt"
+	"go/build"
+	"os"
 	"strings"
 	"time"
 
@@ -29,16 +31,20 @@ func Build(logger logutil.LevelLogger, hashLen int, timeFormat string) (err erro
 
 	// prepare ldflags for go build
 	var ldflagPairs []string
+	verpkgname := getVersionPackageName()
 	ldflagPairs = append(ldflagPairs, fmt.Sprintf(
-		`-X "github.com/tsaikd/KDGoLib/version.BUILDTIME=%s"`,
+		`-X '%s.BUILDTIME=%s'`,
+		verpkgname,
 		time.Now().Format(timeFormat),
 	))
 	ldflagPairs = append(ldflagPairs, fmt.Sprintf(
-		`-X "github.com/tsaikd/KDGoLib/version.GITCOMMIT=%s"`,
+		`-X '%s.GITCOMMIT=%s'`,
+		verpkgname,
 		githash,
 	))
 	ldflagPairs = append(ldflagPairs, fmt.Sprintf(
-		`-X 'github.com/tsaikd/KDGoLib/version.GODEPS=%s'`,
+		`-X '%s.GODEPS=%s'`,
+		verpkgname,
 		godeps,
 	))
 	ldflags := strings.Join(ldflagPairs, " ")
@@ -59,4 +65,16 @@ func getIdentify(hashLen int) (identify string, err error) {
 	}
 
 	return godepsJSON.Rev[:hashLen], nil
+}
+
+func getVersionPackageName() (pkgname string) {
+	pkgname = "github.com/tsaikd/KDGoLib/version"
+
+	pwd, _ := os.Getwd()
+	verpkg, err := build.Default.Import("github.com/tsaikd/KDGoLib/version", pwd, 0)
+	if err != nil {
+		return
+	}
+
+	return verpkg.ImportPath
 }

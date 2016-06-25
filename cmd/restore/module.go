@@ -14,8 +14,17 @@ var Module = cmder.NewModule("restore").
 	AddDepend(
 		flagall.Module,
 	).
+	AddFlag(
+		&cli.BoolFlag{
+			Name:        "tovendor",
+			Usage:       "Restore package to vendor directory instead of GOPATH if vendor directory not found",
+			Destination: &flagToVendor,
+		},
+	).
 	SetAction(action)
 
+var flagToVendor bool
+
 func action(c *cli.Context) (err error) {
-	return builder.Restore(logger.Logger, flagall.All())
+	return builder.Restore(logger.Logger, flagall.All(), flagToVendor)
 }

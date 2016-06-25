@@ -21,7 +21,7 @@ func Test_NewJSONRoot(t *testing.T) {
 	godepsJSON, err := NewJSON(testdir)
 	require.NoError(err)
 	require.NotEmpty(godepsJSON.Deps)
-	require.Equal("github.com/tsaikd/gobuilder", godepsJSON.ImportPath)
+	require.Contains(godepsJSON.ImportPath, "github.com/tsaikd/gobuilder")
 
 	data, err := json.MarshalIndent(godepsJSON, "", "  ")
 	require.NoError(err)
@@ -46,13 +46,10 @@ func Test_NewJSONLib(t *testing.T) {
 	godepsJSON, err := NewJSON(testdir)
 	require.NoError(err)
 	require.NotEmpty(godepsJSON.Deps)
-	require.Equal("github.com/tsaikd/gobuilder/builder", godepsJSON.ImportPath)
+	require.Contains(godepsJSON.ImportPath, "github.com/tsaikd/gobuilder/builder")
 
 	data, err := json.MarshalIndent(godepsJSON, "", "  ")
 	require.NoError(err)
-
-	count := strings.Count(string(data), "github.com/tsaikd/KDGoLib")
-	require.Equal(int(1), count)
 
 	data, err = json.MarshalIndent(godepsJSON.Deps, "", "  ")
 	require.NoError(err)

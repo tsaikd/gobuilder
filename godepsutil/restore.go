@@ -1,8 +1,7 @@
 package godepsutil
 
 import (
-	"encoding/json"
-	"os"
+	"go/build"
 	"path/filepath"
 
 	"github.com/tsaikd/KDGoLib/errutil"
@@ -13,11 +12,12 @@ import (
 
 // errors
 var (
-	ErrorIgnored = errutil.NewFactory("ignored error")
+	ErrorIgnored      = errutil.NewFactory("ignored error")
+	ErrorFetchFailed1 = errutil.NewFactory("fetch package %q failed")
 )
 
 // Restore package dependency by package Godeps.json
-func Restore(dir string, all bool) (err error) {
+func Restore(dir string, all bool, tovendor bool) (err error) {
 	if dir, err = fixDir(dir); err != nil {
 		return
 	}
@@ -27,15 +27,16 @@ func Restore(dir string, all bool) (err error) {
 		return
 	}
 
-	pkg, err := buildContext.ImportDir(dir, 0)
-	if err != nil {
+	var pkg *build.Package
+	if pkg, err = buildContext.ImportDir(dir, 0); err != nil {
 		return
 	}
 
 	done := map[string]bool{}
 	todo := []JSON{}
+	srcroot := pkg.SrcRoot
 
-	if err = restoreJSON(godepsJSON, pkg.SrcRoot, done, &todo); err != nil {
+	if err = restoreJSON(godepsJSON, srcroot, tovendor, done, &todo); err != nil {
 		return
 	}
 
@@ -46,7 +47,7 @@ func Restore(dir string, all bool) (err error) {
 	for len(todo) > 0 {
 		dojson := todo[0]
 		todo = todo[1:]
-		if err = restoreJSON(dojson, pkg.SrcRoot, done, &todo); err != nil {
+		if err = restoreJSON(dojson, srcroot, tovendor, done, &todo); err != nil {
 			return
 		}
 	}
@@ -54,16 +55,29 @@ func Restore(dir string, all bool) (err error) {
 	return
 }
 
-func restoreJSON(godepsJSON JSON, srcroot string, done map[string]bool, todo *[]JSON) (err error) {
+func restoreJSON(godepsJSON JSON, srcroot string, tovendor bool, done map[string]bool, todo *[]JSON) (err error) {
 	for _, dep := range godepsJSON.Deps {
-		if _, exist := done[dep.ImportPath]; exist {
+		if done[dep.ImportPath] {
 			continue
 		}
+		done[dep.ImportPath] = true
 
-		if err = restorePackage(srcroot, dep.ImportPath, dep.Rev); err != nil {
+		var dir string
+		vendordir := filepath.Join(srcroot, godepsJSON.ImportPath, "vendor")
+		if tovendor {
+			dir = vendordir
+		} else {
+			depdir := filepath.Join(vendordir, dep.ImportPath)
+			if futil.IsExist(depdir) {
+				dir = vendordir
+			} else {
+				dir = srcroot
+			}
+		}
+
+		if err = restorePackage(dir, dep.ImportPath, dep.Rev); err != nil {
 			return
 		}
-		done[dep.ImportPath] = true
 
 		var subjson JSON
 		if subjson, err = parsePackageGoDeps(filepath.Join(srcroot, dep.ImportPath)); err == nil {
@@ -71,22 +85,6 @@ func restoreJSON(godepsJSON JSON, srcroot string, done map[string]bool, todo *[]
 		}
 	}
 	return nil
-}
-
-func parsePackageGoDeps(dir string) (result JSON, err error) {
-	jsonPath := filepath.Join(dir, "Godeps", "Godeps.json")
-	jsonFile, err := os.Open(jsonPath)
-	if err != nil {
-		return
-	}
-	defer jsonFile.Close()
-
-	jsonParser := json.NewDecoder(jsonFile)
-	if err = jsonParser.Decode(&result); err != nil {
-		return
-	}
-
-	return
 }
 
 func restorePackage(srcroot string, importPath string, rev string) (err error) {
@@ -101,9 +99,13 @@ func restorePackage(srcroot string, importPath string, rev string) (err error) {
 	}
 
 	dir := filepath.Join(srcroot, repo.Root)
-	if !futil.IsExist(dir) {
-		err = executil.Run("go", "get", repo.Root)
-		errutil.TraceWrap(err, ErrorIgnored.New(nil))
+	if futil.IsExist(dir) {
+		err = repo.VCS.Download(dir)
+		errutil.TraceWrap(err, ErrorIgnored.New(ErrorFetchFailed1.New(nil, importPath)))
+	} else {
+		if err = repo.VCS.Create(dir, repo.Repo); err != nil {
+			return ErrorFetchFailed1.New(err, importPath)
+		}
 	}
 
 	if err = repo.VCS.TagSync(dir, rev); err != nil {

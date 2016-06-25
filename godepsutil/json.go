@@ -1,6 +1,7 @@
 package godepsutil
 
 import (
+	"encoding/json"
 	"go/build"
 	"os"
 	"path/filepath"
@@ -33,9 +34,11 @@ type JSON struct {
 type depsType struct {
 	ImportPath string
 	Rev        string
+
+	pkg *build.Package
 }
 
-func (t *JSON) addDep(importPath string, srcroot string) (err error) {
+func (t *JSON) addDep(importPath string, pkg *build.Package) (err error) {
 	// prepare addedDep for cache processed package
 	if t.addedDep == nil {
 		t.addedDep = map[string]bool{}
@@ -50,13 +53,13 @@ func (t *JSON) addDep(importPath string, srcroot string) (err error) {
 	}
 	t.addedDep[importPath] = true
 
-	pkg, err := buildContext.Import(importPath, srcroot, 0)
+	deppkg, err := buildContext.Import(importPath, pkg.Dir, 0)
 	if err != nil {
 		return
 	}
 
 	// ignore go built-in package
-	if pkg.Goroot {
+	if deppkg.Goroot {
 		return
 	}
 
@@ -65,13 +68,13 @@ func (t *JSON) addDep(importPath string, srcroot string) (err error) {
 	if err != nil {
 		return ErrorGetRepoInfo1.New(err, importPath)
 	}
-	rev, err := repo.VCS.Identify(filepath.Join(srcroot, repo.Root))
+	rev, err := repo.VCS.Identify(deppkg.Dir)
 	if err != nil {
 		return
 	}
 
 	// append dependency but ignore self import
-	if !strings.HasPrefix(pkg.ImportPath, t.rootPath) {
+	if !strings.HasPrefix(deppkg.ImportPath, t.rootPath) {
 		// ignore if repo root added
 		if _, added := t.addedDepRoot[repo.Root]; !added {
 			t.addedDepRoot[repo.Root] = true
@@ -79,17 +82,27 @@ func (t *JSON) addDep(importPath string, srcroot string) (err error) {
 			t.Deps = append(t.Deps, depsType{
 				ImportPath: repo.Root,
 				Rev:        rev,
+				pkg:        deppkg,
 			})
 		}
 	}
 
-	for _, depimportpath := range pkg.Imports {
-		if err = t.addDep(depimportpath, pkg.SrcRoot); err != nil {
+	for _, depimportpath := range deppkg.Imports {
+		if err = t.addDep(depimportpath, deppkg); err != nil {
 			return
 		}
 	}
 
 	return
+}
+
+func (t *JSON) inDep(importPath string) bool {
+	for _, dep := range t.Deps {
+		if importPath == dep.ImportPath {
+			return true
+		}
+	}
+	return false
 }
 
 // NewJSON create godeps json config by analyzing dir
@@ -98,24 +111,52 @@ func NewJSON(dir string) (result JSON, err error) {
 		return
 	}
 
-	pkg, err := buildContext.ImportDir(dir, 0)
-	if err != nil {
+	if result.pkg, err = buildContext.ImportDir(dir, 0); err != nil {
 		return
 	}
 
 	result.GoVersion = runtime.Version()
-	result.ImportPath = pkg.ImportPath
+	result.ImportPath = result.pkg.ImportPath
 
-	repo, err := vcs.RepoRootForImportPath(pkg.ImportPath, false)
+	repo, err := vcs.RepoRootForImportPath(result.ImportPath, false)
 	if err != nil {
-		return result, ErrorGetRepoInfo1.New(err, pkg.ImportPath)
+		return result, ErrorGetRepoInfo1.New(err, result.ImportPath)
 	}
 	if result.Rev, err = repo.VCS.Identify(dir); err != nil {
 		return
 	}
 	result.rootPath = repo.Root
 
-	if err = result.addDep(result.ImportPath, pkg.SrcRoot); err != nil {
+	if err = result.addDep(result.ImportPath, result.pkg); err != nil {
+		return
+	}
+
+	// add dependencies from Godeps.json for vendor packages
+	if godeps, err := parsePackageGoDeps(dir); err == nil {
+		deps := []depsType{}
+		for _, dep := range godeps.Deps {
+			if !result.inDep(dep.ImportPath) {
+				deps = append(deps, dep)
+			}
+		}
+		if len(deps) > 0 {
+			result.Deps = append(deps, result.Deps...)
+		}
+	}
+
+	return
+}
+
+func parsePackageGoDeps(dir string) (result JSON, err error) {
+	jsonPath := filepath.Join(dir, "Godeps", "Godeps.json")
+	jsonFile, err := os.Open(jsonPath)
+	if err != nil {
+		return
+	}
+	defer jsonFile.Close()
+
+	jsonParser := json.NewDecoder(jsonFile)
+	if err = jsonParser.Decode(&result); err != nil {
 		return
 	}
 
