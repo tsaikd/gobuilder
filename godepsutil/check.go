@@ -35,13 +35,10 @@ func checkDir(dir string, all bool, done map[string]bool, mismatches *[]error) (
 		return
 	}
 
-	godepsJSON, err := parsePackageGoDeps(dir)
-	if err != nil {
-		return
-	}
-
-	if err = checkJSON(godepsJSON, dir, all, done, mismatches); err != nil {
-		return
+	if godepsJSON, err := parsePackageGoDeps(dir); err == nil {
+		if err = checkJSON(godepsJSON, dir, all, done, mismatches); err != nil {
+			return err
+		}
 	}
 
 	return
@@ -92,7 +89,7 @@ func checkPackageRoots(srcroots []string, importPath string, rev string, all boo
 				continue
 			case ErrorDepRevMismatch4:
 				if found {
-					errutil.TraceWrap(err, ErrorIgnored.New(nil))
+					errutil.TraceWrap(err, ErrorWarning.New(nil))
 					continue
 				}
 				return "", err
