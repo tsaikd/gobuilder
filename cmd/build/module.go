@@ -12,6 +12,9 @@ import (
 // Module info
 var Module = cmder.NewModule("build").
 	SetUsage("Build application with godeps info").
+	AddDepend(
+		logger.Module,
+	).
 	AddFlag(
 		&cli.IntFlag{
 			Name:        "hashlen",

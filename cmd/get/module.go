@@ -12,6 +12,7 @@ import (
 var Module = cmder.NewModule("get").
 	SetUsage("Go get dependencies").
 	AddDepend(
+		logger.Module,
 		flagall.Module,
 	).
 	AddFlag(

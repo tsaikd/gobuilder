@@ -12,6 +12,7 @@ import (
 var Module = cmder.NewModule("restore").
 	SetUsage("Restore godeps dependencies").
 	AddDepend(
+		logger.Module,
 		flagall.Module,
 	).
 	AddFlag(
