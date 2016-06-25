@@ -18,7 +18,7 @@ var Module = cmder.NewModule("dep").
 
 func action(c *cli.Context) (err error) {
 	if err = godepsutil.Check(".", flagall.All()); err != nil {
-		if godepsutil.ErrorDepRevMismatch3.In(err) {
+		if godepsutil.ErrorDepRevMismatch4.In(err) {
 			return errutil.New("Check dependencies failed")
 		}
 		return

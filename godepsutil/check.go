@@ -11,7 +11,7 @@ import (
 // errors
 var (
 	ErrorDepNoFound1     = errutil.NewFactory("dependency %q not found")
-	ErrorDepRevMismatch3 = errutil.NewFactory("dependency %q revision expected %q but got %q")
+	ErrorDepRevMismatch4 = errutil.NewFactory("dependency %q revision expected %q but got %q in %q")
 )
 
 // Check package dependency version by package Godeps.json
@@ -61,9 +61,9 @@ func checkJSON(godepsJSON JSON, dir string, all bool, done map[string]bool, mism
 
 		var deproot string
 		srcroots := genVendorsRoot(dir, pkg.SrcRoot)
-		if deproot, err = checkPackageRoots(srcroots, dep.ImportPath, dep.Rev); err != nil {
+		if deproot, err = checkPackageRoots(srcroots, dep.ImportPath, dep.Rev, all); err != nil {
 			switch errutil.FactoryOf(err) {
-			case ErrorDepRevMismatch3:
+			case ErrorDepRevMismatch4:
 				*mismatches = append(*mismatches, err)
 			default:
 				return
@@ -83,18 +83,32 @@ func checkJSON(godepsJSON JSON, dir string, all bool, done map[string]bool, mism
 	return nil
 }
 
-func checkPackageRoots(srcroots []string, importPath string, rev string) (pkgroot string, err error) {
+func checkPackageRoots(srcroots []string, importPath string, rev string, all bool) (pkgroot string, err error) {
+	found := false
 	for _, srcroot := range srcroots {
 		if err = checkPackage(srcroot, importPath, rev); err != nil {
 			switch errutil.FactoryOf(err) {
 			case ErrorDepNoFound1:
 				continue
+			case ErrorDepRevMismatch4:
+				if found {
+					errutil.TraceWrap(err, ErrorIgnored.New(nil))
+					continue
+				}
+				return "", err
 			default:
 				return "", err
 			}
 		} else {
-			return srcroot, nil
+			found = true
+			pkgroot = srcroot
+			if !all {
+				return
+			}
 		}
+	}
+	if found {
+		return pkgroot, nil
 	}
 	return "", ErrorDepNoFound1.New(nil, importPath)
 }
@@ -116,7 +130,7 @@ func checkPackage(srcroot string, importPath string, rev string) (err error) {
 	}
 
 	if identify != rev {
-		return ErrorDepRevMismatch3.New(nil, repo.Root, rev, identify)
+		return ErrorDepRevMismatch4.New(nil, repo.Root, rev, identify, srcroot)
 	}
 
 	return nil
