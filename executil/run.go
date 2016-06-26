@@ -3,6 +3,8 @@ package executil
 import (
 	"os"
 	"os/exec"
+
+	"github.com/tsaikd/KDGoLib/errutil"
 )
 
 // default config
@@ -19,15 +21,20 @@ func Run(name string, arg ...string) (err error) {
 	return cmd.Run()
 }
 
-// deprecated
-// func runCommandBuffer(name string, arg ...string) (stdout string, stderr string, err error) {
-// 	cmd := exec.Command(name, arg...)
-// 	bufout := bytes.Buffer{}
-// 	buferr := bytes.Buffer{}
-// 	cmd.Stdout = &bufout
-// 	cmd.Stderr = &buferr
-// 	err = cmd.Run()
-// 	stdout = strings.TrimSpace(bufout.String())
-// 	stderr = strings.TrimSpace(buferr.String())
-// 	return
-// }
+// RunWD command with default config in dir
+func RunWD(dir string, name string, arg ...string) (err error) {
+	if dir != "" {
+		var pwd string
+		if pwd, err = os.Getwd(); err != nil {
+			return
+		}
+		if err = os.Chdir(dir); err != nil {
+			return
+		}
+		defer func() {
+			errutil.Trace(os.Chdir(pwd))
+		}()
+	}
+
+	return Run(name, arg...)
+}

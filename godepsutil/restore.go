@@ -12,8 +12,10 @@ import (
 
 // errors
 var (
-	ErrorWarning      = errutil.NewFactory("warning")
-	ErrorFetchFailed1 = errutil.NewFactory("fetch package %q failed")
+	ErrorWarning                 = errutil.NewFactory("warning")
+	ErrorFetchFailed1            = errutil.NewFactory("fetch package %q failed")
+	ErrorRestoreFailed1          = errutil.NewFactory("restore package %q failed")
+	ErrorRestoreSubmoduleFailed1 = errutil.NewFactory("restore submodule of %q failed")
 )
 
 // Restore package dependency by package Godeps.json
@@ -112,7 +114,13 @@ func restorePackage(srcroot string, importPath string, rev string) (err error) {
 		err = executil.Run("go", "get", "-u", repo.Root)
 		errutil.TraceWrap(err, ErrorWarning.New(nil))
 		if err = repo.VCS.TagSync(dir, rev); err != nil {
-			return errutil.New("vcs tag sync failed", err)
+			return ErrorRestoreFailed1.New(err)
+		}
+	}
+	// restore submodules
+	if repo.VCS.Name == "Git" {
+		if err = executil.RunWD(dir, "git", "submodule", "update", "--init", "--recursive"); err != nil {
+			return ErrorRestoreSubmoduleFailed1.New(err, dir)
 		}
 	}
 	return nil
