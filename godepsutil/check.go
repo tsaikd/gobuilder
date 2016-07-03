@@ -99,9 +99,6 @@ func checkPackageRoots(srcroots []string, importPath string, rev string, all boo
 		} else {
 			found = true
 			pkgroot = srcroot
-			if !all {
-				return
-			}
 		}
 	}
 	if found {
