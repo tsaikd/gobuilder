@@ -103,10 +103,10 @@ func restorePackage(srcroot string, importPath string, rev string) (err error) {
 	dir := filepath.Join(srcroot, repo.Root)
 	if futil.IsExist(dir) {
 		err = repo.VCS.Download(dir)
-		errutil.TraceWrap(err, ErrorWarning.New(ErrorFetchFailed1.New(nil, importPath)))
+		errutil.TraceWrap(err, ErrorWarning.New(ErrorFetchFailed1.New(nil, dir)))
 	} else {
 		if err = repo.VCS.Create(dir, repo.Repo); err != nil {
-			return ErrorFetchFailed1.New(err, importPath)
+			return ErrorFetchFailed1.New(err, dir)
 		}
 	}
 
@@ -114,7 +114,7 @@ func restorePackage(srcroot string, importPath string, rev string) (err error) {
 		err = executil.Run("go", "get", "-u", repo.Root)
 		errutil.TraceWrap(err, ErrorWarning.New(nil))
 		if err = repo.VCS.TagSync(dir, rev); err != nil {
-			return ErrorRestoreFailed1.New(err)
+			return ErrorRestoreFailed1.New(err, dir)
 		}
 	}
 	// restore submodules
