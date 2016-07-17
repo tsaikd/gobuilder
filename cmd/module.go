@@ -1,25 +1,52 @@
 package cmd
 
 import (
-	"github.com/tsaikd/KDGoLib/cliutil/cmder"
+	"github.com/spf13/cobra"
+	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/gobuilder/cmd/build"
+	"github.com/tsaikd/gobuilder/cmd/dep"
 	"github.com/tsaikd/gobuilder/cmd/get"
 	"github.com/tsaikd/gobuilder/cmd/restore"
-	"github.com/tsaikd/gobuilder/logger"
-	"gopkg.in/urfave/cli.v2"
 )
 
 // Module info
-var Module = cmder.NewModule("gobuilder").
-	SetUsage("Go application builder, run action: restore -> get -> build").
-	AddDepend(
-		logger.Module,
+var Module = &cobrather.Module{
+	Use:   "gobuilder",
+	Short: "Go application builder, run action: restore -> get -> build",
+	Commands: []*cobrather.Module{
+		dep.Module,
 		restore.Module,
 		get.Module,
 		build.Module,
-	).
-	SetAction(action)
+		cobrather.VersionModule,
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		runFuncs := []func(cmd *cobra.Command, args []string) error{}
 
-func action(c *cli.Context) (err error) {
-	return
+		cmdModules := []*cobrather.Module{
+			restore.Module,
+			get.Module,
+			build.Module,
+		}
+		depModules := cobrather.ListDeps(cobrather.OIncludeDepInCommand, cmdModules...)
+		preRun := cobrather.GenRunE(depModules...)
+		runFuncs = append(runFuncs, preRun)
+
+		run := cobrather.GenRunE(cmdModules...)
+		runFuncs = append(runFuncs, run)
+
+		postRun := cobrather.GenPostRunE(cmdModules...)
+		runFuncs = append(runFuncs, postRun)
+
+		depPostRun := cobrather.GenPostRunE(depModules...)
+		runFuncs = append(runFuncs, depPostRun)
+
+		for _, fn := range runFuncs {
+			if err := fn(cmd, args); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	},
 }

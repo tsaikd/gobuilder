@@ -1,21 +1,26 @@
 package main
 
 import (
-	"github.com/tsaikd/KDGoLib/cliutil/cmder"
-	"gopkg.in/urfave/cli.v2"
+	"os"
+
+	"github.com/spf13/cobra"
+	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 )
 
 // Module info
-var Module = cmder.NewModule("exampleApp").
-	SetUsage("Example application for gobuilder").
-	SetAction(action)
-
-func action(c *cli.Context) (err error) {
-	return
+var Module = &cobrather.Module{
+	Use:   "exampleApp",
+	Short: "Example application for gobuilder",
+	Commands: []*cobrather.Module{
+		cobrather.VersionModule,
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return nil
+	},
 }
 
 func main() {
-	cmder.Main(
-		*Module,
-	)
+	if err := Module.MustNewRootCommand(nil).Execute(); err != nil {
+		os.Exit(-1)
+	}
 }

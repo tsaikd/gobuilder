@@ -14,7 +14,7 @@ import (
 )
 
 // Build golang application source code
-func Build(logger logutil.LevelLogger, hashLen int, timeFormat string) (err error) {
+func Build(logger logutil.LevelLogger, hashLen int64, timeFormat string) (err error) {
 	// get current git hash
 	logger.Debugln("get project version hash")
 	githash, err := getIdentify(hashLen)
@@ -58,7 +58,7 @@ func Build(logger logutil.LevelLogger, hashLen int, timeFormat string) (err erro
 	return
 }
 
-func getIdentify(hashLen int) (identify string, err error) {
+func getIdentify(hashLen int64) (identify string, err error) {
 	godepsJSON, err := godepsutil.NewJSON(".")
 	if err != nil {
 		return

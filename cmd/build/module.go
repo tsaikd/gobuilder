@@ -3,39 +3,40 @@ package build
 import (
 	"time"
 
-	"github.com/tsaikd/KDGoLib/cliutil/cmder"
+	"github.com/spf13/cobra"
+	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/gobuilder/builder"
+	"github.com/tsaikd/gobuilder/cmd/flags"
 	"github.com/tsaikd/gobuilder/logger"
-	"gopkg.in/urfave/cli.v2"
+)
+
+// command line flags
+var (
+	FlagHashLen = &cobrather.Int64Flag{
+		Name:    "hashlen",
+		Default: 6,
+		Usage:   "Builder extract version control hash length",
+	}
+	FlagTimeFmt = &cobrather.StringFlag{
+		Name:    "timefmt",
+		Default: time.RFC1123,
+		Usage:   "Build time format",
+	}
 )
 
 // Module info
-var Module = cmder.NewModule("build").
-	SetUsage("Build application with godeps info").
-	AddDepend(
+var Module = &cobrather.Module{
+	Use:   "build",
+	Short: "Build application with godeps info",
+	Dependencies: []*cobrather.Module{
 		logger.Module,
-	).
-	AddFlag(
-		&cli.IntFlag{
-			Name:        "hashlen",
-			EnvVars:     []string{"GO_BUILDER_HASH_LENGTH"},
-			Usage:       "Builder extract version control hash length",
-			Destination: &flagHashLen,
-			Value:       6,
-		},
-		&cli.StringFlag{
-			Name:        "timefmt",
-			EnvVars:     []string{"GO_BUILDER_TIME_FORMAT"},
-			Usage:       "Build time format",
-			Destination: &flagTimeFormat,
-			Value:       time.RFC1123,
-		},
-	).
-	SetAction(action)
-
-var flagHashLen int
-var flagTimeFormat string
-
-func action(c *cli.Context) (err error) {
-	return builder.Build(logger.Logger, flagHashLen, flagTimeFormat)
+		flags.Module,
+	},
+	Flags: []cobrather.Flag{
+		FlagHashLen,
+		FlagTimeFmt,
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return builder.Build(logger.Logger, FlagHashLen.Int64(), FlagTimeFmt.String())
+	},
 }

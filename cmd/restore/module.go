@@ -1,31 +1,34 @@
 package restore
 
 import (
-	"github.com/tsaikd/KDGoLib/cliutil/cmder"
+	"github.com/spf13/cobra"
+	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/gobuilder/builder"
-	"github.com/tsaikd/gobuilder/cmd/flagall"
+	"github.com/tsaikd/gobuilder/cmd/flags"
 	"github.com/tsaikd/gobuilder/logger"
-	"gopkg.in/urfave/cli.v2"
+)
+
+// command line flags
+var (
+	FlagToVendor = &cobrather.BoolFlag{
+		Name:    "tovendor",
+		Default: false,
+		Usage:   "Restore package to vendor directory instead of GOPATH if vendor directory not found",
+	}
 )
 
 // Module info
-var Module = cmder.NewModule("restore").
-	SetUsage("Restore godeps dependencies").
-	AddDepend(
+var Module = &cobrather.Module{
+	Use:   "restore",
+	Short: "Restore godeps dependencies",
+	Dependencies: []*cobrather.Module{
 		logger.Module,
-		flagall.Module,
-	).
-	AddFlag(
-		&cli.BoolFlag{
-			Name:        "tovendor",
-			Usage:       "Restore package to vendor directory instead of GOPATH if vendor directory not found",
-			Destination: &flagToVendor,
-		},
-	).
-	SetAction(action)
-
-var flagToVendor bool
-
-func action(c *cli.Context) (err error) {
-	return builder.Restore(logger.Logger, flagall.All(), flagToVendor)
+		flags.Module,
+	},
+	Flags: []cobrather.Flag{
+		FlagToVendor,
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return builder.Restore(logger.Logger, flags.All(), FlagToVendor.Bool())
+	},
 }

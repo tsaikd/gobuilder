@@ -1,32 +1,35 @@
 package get
 
 import (
-	"github.com/tsaikd/KDGoLib/cliutil/cmder"
+	"github.com/spf13/cobra"
+	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/gobuilder/builder"
-	"github.com/tsaikd/gobuilder/cmd/flagall"
+	"github.com/tsaikd/gobuilder/cmd/flags"
 	"github.com/tsaikd/gobuilder/logger"
-	"gopkg.in/urfave/cli.v2"
+)
+
+// command line flags
+var (
+	FlagTest = &cobrather.BoolFlag{
+		Name:      "test",
+		ShortHand: "t",
+		Default:   false,
+		Usage:     "Also download the packages required to build the tests",
+	}
 )
 
 // Module info
-var Module = cmder.NewModule("get").
-	SetUsage("Go get dependencies").
-	AddDepend(
+var Module = &cobrather.Module{
+	Use:   "get",
+	Short: "Go get dependencies",
+	Dependencies: []*cobrather.Module{
 		logger.Module,
-		flagall.Module,
-	).
-	AddFlag(
-		&cli.BoolFlag{
-			Name:        "t",
-			Aliases:     []string{"test"},
-			Usage:       "Also download the packages required to build the tests",
-			Destination: &flagTest,
-		},
-	).
-	SetAction(action)
-
-var flagTest bool
-
-func action(c *cli.Context) (err error) {
-	return builder.GoGet(logger.Logger, flagall.All(), flagTest)
+		flags.Module,
+	},
+	GlobalFlags: []cobrather.Flag{
+		FlagTest,
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return builder.GoGet(logger.Logger, flags.All(), FlagTest.Bool())
+	},
 }

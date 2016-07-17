@@ -2,36 +2,44 @@ package logger
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/tsaikd/KDGoLib/cliutil/cmder"
+	"github.com/spf13/cobra"
+	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/KDGoLib/logutil"
-	"gopkg.in/urfave/cli.v2"
+)
+
+// Debug return current flag
+func Debug() bool {
+	return FlagDebug.Bool() || FlagTravis.Bool()
+}
+
+// command line flags
+var (
+	FlagDebug = &cobrather.BoolFlag{
+		Name:    "debug",
+		Default: false,
+		Usage:   "Run in debug mode",
+	}
+	FlagTravis = &cobrather.BoolFlag{
+		Name:    "travis",
+		Default: false,
+		EnvVar:  "TRAVIS",
+		Hidden:  true,
+	}
 )
 
 // Module info
-var Module = cmder.NewModule("logger").
-	AddFlag(
-		&cli.BoolFlag{
-			Name:        "debug",
-			Usage:       "Run in debug mode",
-			Destination: &flagDebug,
-		},
-		&cli.BoolFlag{
-			Name:        "travis",
-			EnvVars:     []string{"TRAVIS"},
-			Usage:       "Run in travis server, imply debug",
-			Destination: &flagTravis,
-			Hidden:      true,
-		},
-	).
-	SetAction(func(c *cli.Context) (err error) {
-		if flagDebug || flagTravis {
+var Module = &cobrather.Module{
+	GlobalFlags: []cobrather.Flag{
+		FlagDebug,
+		FlagTravis,
+	},
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		if Debug() {
 			Logger.Level = logrus.DebugLevel
 		}
-		return
-	})
-
-var flagDebug bool
-var flagTravis bool
+		return nil
+	},
+}
 
 // Logger instance
 var Logger = logutil.DefaultLogger
