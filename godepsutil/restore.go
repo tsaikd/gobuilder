@@ -2,6 +2,7 @@ package godepsutil
 
 import (
 	"go/build"
+	"os"
 	"path/filepath"
 
 	"github.com/tsaikd/KDGoLib/errutil"
@@ -101,20 +102,30 @@ func restorePackage(srcroot string, importPath string, rev string) (err error) {
 	}
 
 	dir := filepath.Join(srcroot, repo.Root)
-	if futil.IsExist(dir) {
-		err = repo.VCS.Download(dir)
-		errutil.TraceWrap(err, ErrorWarning.New(ErrorFetchFailed1.New(nil, dir)))
-	} else {
+	if _, err = os.Stat(dir); os.IsNotExist(err) {
+		// dir not exist
 		if err = repo.VCS.Create(dir, repo.Repo); err != nil {
 			return ErrorFetchFailed1.New(err, dir)
 		}
 	}
 
+	identify, err := repo.VCS.Identify(dir)
+	if err != nil {
+		return
+	}
+	if identify == rev {
+		return nil
+	}
+
 	if err = repo.VCS.TagSync(dir, rev); err != nil {
-		err = executil.Run("go", "get", "-u", repo.Root)
-		errutil.TraceWrap(err, ErrorWarning.New(nil))
+		err = repo.VCS.Download(dir)
+		errutil.TraceWrap(err, ErrorWarning.New(ErrorFetchFailed1.New(nil, dir)))
 		if err = repo.VCS.TagSync(dir, rev); err != nil {
-			return ErrorRestoreFailed1.New(err, dir)
+			err = executil.Run("go", "get", "-u", repo.Root)
+			errutil.TraceWrap(err, ErrorWarning.New(nil))
+			if err = repo.VCS.TagSync(dir, rev); err != nil {
+				return ErrorRestoreFailed1.New(err, dir)
+			}
 		}
 	}
 	// restore submodules
