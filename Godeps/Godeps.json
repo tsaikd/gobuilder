@@ -5,10 +5,6 @@
 		{
 			"ImportPath": "github.com/tsaikd/KDGoLib",
 			"Rev": "54e731188f42f0709453c0ede179969d19d90807"
-		},
-		{
-			"ImportPath": "github.com/tsaikd/tools",
-			"Rev": "b451a0a709facde9196c39e4e6db2bf1a30aa481"
 		}
 	]
 }
