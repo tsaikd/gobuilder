@@ -3,6 +3,11 @@ Go application builder
 
 [![Build Status](https://travis-ci.org/tsaikd/gobuilder.svg?branch=master)](https://travis-ci.org/tsaikd/gobuilder)
 
+## Why?
+
+`go build` command works fine, but not enough. I need more information to embed
+with application. e.g. **version**, **build time**, **revision**, **dependencies**
+
 ## Install
 ```
 go get -u -v "github.com/tsaikd/gobuilder"
@@ -17,31 +22,48 @@ See [example](example) for usage
 gobuilder
 ```
 
-## Example output
+## Use gobuider with version constraint in build script
+```
+if ! gobuilder version -c ">=0.1" &>/dev/null ; then
+	go get -u -v "github.com/tsaikd/gobuilder"
+fi
+
+gobuilder
+```
+
+## [Example](example) application output
 ```
 $ gobuilder
+$ ./example version -n
+0.0.1
+$ ./example version -c ">=1"
+Error: current version "0.0.1" not in range ">=1"
 $ ./example version
 {
 	"version": "0.0.1",
-	"buildtime": "Sun, 17 Jul 2016 21:10:19 CST",
-	"gitcommit": "25904f",
+	"buildtime": "Fri, 29 Jul 2016 01:36:11 CST",
+	"gitcommit": "0a470c",
 	"godeps": {
 		"Deps": [
 			{
 				"ImportPath": "github.com/spf13/cobra",
-				"Rev": "b24564e919247d7c870fe0ed3738c98d8741aca4"
+				"Rev": "f62e98d28ab7ad31d707ba837a966378465c7b57"
 			},
 			{
 				"ImportPath": "github.com/spf13/pflag",
-				"Rev": "367864438f1b1a3c7db4da06a2f55b144e6784e0"
+				"Rev": "1560c1005499d61b80f865c04d39ca7505bf7f0b"
+			},
+			{
+				"ImportPath": "github.com/hashicorp/go-version",
+				"Rev": "deeb027c13a95d56c7585df3fe29207208c6706e"
 			},
 			{
 				"ImportPath": "github.com/spf13/viper",
-				"Rev": "c1ccc378a054ea8d4e38d8c67f6938d4760b53dd"
+				"Rev": "b53595fb56a492ecef90ee0457595a999eb6ec15"
 			},
 			{
 				"ImportPath": "github.com/BurntSushi/toml",
-				"Rev": "bec2dacf4b590d26237cfebff4471e21ce543494"
+				"Rev": "99064174e013895bbd9b025c31100bd1d9b590ca"
 			},
 			{
 				"ImportPath": "github.com/fsnotify/fsnotify",
@@ -49,7 +71,7 @@ $ ./example version
 			},
 			{
 				"ImportPath": "golang.org/x/sys",
-				"Rev": "b518c298ac9dc94b6ac0757394f50d10c5dfa25a"
+				"Rev": "a646d33e2ee3172a661fc09bca23bb4889a41bc8"
 			},
 			{
 				"ImportPath": "github.com/hashicorp/hcl",
@@ -57,7 +79,7 @@ $ ./example version
 			},
 			{
 				"ImportPath": "github.com/magiconair/properties",
-				"Rev": "e2f061ecfdaca9f35b2e2c12346ffc526f138137"
+				"Rev": "b3f6dd549956e8a61ea4a686a1c02a33d5bdda4b"
 			},
 			{
 				"ImportPath": "github.com/mitchellh/mapstructure",
@@ -74,11 +96,15 @@ $ ./example version
 			{
 				"ImportPath": "gopkg.in/yaml.v2",
 				"Rev": "e4d366fc3c7938e2958e662b4258c7a89e1f0e3e"
+			},
+			{
+				"ImportPath": "github.com/kardianos/osext",
+				"Rev": "29ae4ffbc9a6fe9fb2bc5029050ce6996ea1d3bc"
 			}
 		],
-		"GoVersion": "go1.6.2",
+		"GoVersion": "go1.6.3",
 		"ImportPath": "github.com/tsaikd/gobuilder/example",
-		"Rev": "25904f7cbebbbcfa7ead35847907632c74baec9b"
+		"Rev": "0a470c2f69986eede7c59cbb671b786eca41d7e9"
 	}
 }
 ```
