@@ -19,8 +19,9 @@ var (
 
 // Module info
 var Module = &cobrather.Module{
-	Use:   "restore",
-	Short: "Restore godeps dependencies",
+	Use:     "restore",
+	Aliases: []string{"res"},
+	Short:   "Restore godeps dependencies",
 	Dependencies: []*cobrather.Module{
 		logger.Module,
 		flags.Module,

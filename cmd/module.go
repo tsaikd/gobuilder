@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/gobuilder/cmd/build"
+	"github.com/tsaikd/gobuilder/cmd/checkerror"
 	"github.com/tsaikd/gobuilder/cmd/dep"
 	"github.com/tsaikd/gobuilder/cmd/get"
 	"github.com/tsaikd/gobuilder/cmd/restore"
@@ -15,6 +16,7 @@ var Module = &cobrather.Module{
 	Short: "Go application builder, run action: restore -> get -> build",
 	Commands: []*cobrather.Module{
 		dep.Module,
+		checkerror.Module,
 		restore.Module,
 		get.Module,
 		build.Module,
