@@ -6,12 +6,10 @@ import (
 	"go/importer"
 	"go/parser"
 	"go/token"
-	"io/ioutil"
-	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/tsaikd/KDGoLib/errutil"
+	"github.com/tsaikd/KDGoLib/pkgutil"
 )
 
 // errors
@@ -21,18 +19,18 @@ var (
 )
 
 // Check redundant error factory, including sub packages, but ignore vendor
-func Check(importPath string) (err error) {
-	importPaths := &importPathList{}
-	dir, err := os.Getwd()
-	if err != nil {
+func Check(importPath string, srcDir string) (err error) {
+	if srcDir, err = filepath.Abs(srcDir); err != nil {
 		return
 	}
-	if err = collectImportPathRecursively(importPaths, importPath, dir); err != nil {
+
+	pkglist, err := pkgutil.FindAllSubPackages(importPath, srcDir)
+	if err != nil {
 		return
 	}
 
 	errorFactories := &errorFactoryList{}
-	for pkg := range importPaths.pkgpool {
+	for pkg := range pkglist.Map() {
 		if err = collectErrorFactory(errorFactories, pkg.ImportPath); err != nil {
 			return
 		}
@@ -43,8 +41,8 @@ func Check(importPath string) (err error) {
 		return
 	}
 
-	for pkg := range importPaths.pkgpool {
-		if err = consumeErrorFactory(errorFactories, pkg.ImportPath, dir, importPaths); err != nil {
+	for pkg := range pkglist.Map() {
+		if err = consumeErrorFactory(errorFactories, pkg.ImportPath, srcDir, pkglist); err != nil {
 			return
 		}
 	}
@@ -57,42 +55,6 @@ func Check(importPath string) (err error) {
 			errs = append(errs, err)
 		}
 		return errutil.NewErrors(errs...)
-	}
-
-	return nil
-}
-
-func collectImportPathRecursively(result *importPathList, importPath string, srcDir string) (err error) {
-	pkg, err := build.Import(importPath, srcDir, 0)
-	switch err.(type) {
-	case *build.NoGoError:
-	case nil:
-		result.addPackage(pkg)
-	default:
-		return
-	}
-
-	files, err := ioutil.ReadDir(pkg.Dir)
-	if err != nil {
-		return
-	}
-
-	for _, file := range files {
-		if !file.IsDir() {
-			continue
-		}
-		name := file.Name()
-		if name == "vendor" {
-			continue
-		}
-		if strings.HasPrefix(name, ".") {
-			continue
-		}
-
-		childPath := filepath.Join(importPath, name)
-		if err = collectImportPathRecursively(result, childPath, pkg.Dir); err != nil {
-			return
-		}
 	}
 
 	return nil
@@ -126,7 +88,7 @@ func consumeErrorFactory(
 	result *errorFactoryList,
 	importPath string,
 	srcDir string,
-	pkglist *importPathList,
+	pkglist *pkgutil.PackageList,
 ) (err error) {
 	pkg, _ := build.Import(importPath, srcDir, 0)
 	for _, gofile := range pkg.GoFiles {
@@ -143,7 +105,7 @@ func consumeErrorFactory(
 			case *ast.ImportSpec:
 				// setup file imports
 				impname, imppath := getImportSpecName(x)
-				if imppkg := pkglist.namepool[imppath]; imppkg != nil {
+				if imppkg := pkglist.LookupByName(imppath); imppkg != nil {
 					importPkgs[impname] = imppkg
 				}
 			case *ast.SelectorExpr:
