@@ -10,6 +10,16 @@ import (
 	"github.com/tsaikd/gobuilder/cmd/modRestore"
 )
 
+// command line flags
+var (
+	FlagCheck = &cobrather.BoolFlag{
+		Name:      "check",
+		ShortHand: "c",
+		Default:   false,
+		Usage:     "Run check actions before build actions: checkerror",
+	}
+)
+
 // Module info
 var Module = &cobrather.Module{
 	Use:   "gobuilder",
@@ -22,14 +32,24 @@ var Module = &cobrather.Module{
 		modBuild.Module,
 		cobrather.VersionModule,
 	},
+	Flags: []cobrather.Flag{
+		FlagCheck,
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		runFuncs := []func(cmd *cobra.Command, args []string) error{}
 
-		cmdModules := []*cobrather.Module{
+		cmdModules := []*cobrather.Module{}
+		if FlagCheck.Bool() {
+			cmdModules = append(cmdModules,
+				modCheckError.Module,
+			)
+		}
+		cmdModules = append(cmdModules,
 			modRestore.Module,
 			modGet.Module,
 			modBuild.Module,
-		}
+		)
+
 		depModules := cobrather.ListDeps(cobrather.OIncludeDepInCommand, cmdModules...)
 		preRun := cobrather.GenRunE(depModules...)
 		runFuncs = append(runFuncs, preRun)
