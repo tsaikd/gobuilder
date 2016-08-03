@@ -1,10 +1,10 @@
-package restore
+package modRestore
 
 import (
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/gobuilder/builder"
-	"github.com/tsaikd/gobuilder/cmd/flags"
+	"github.com/tsaikd/gobuilder/cmd/modFlags"
 	"github.com/tsaikd/gobuilder/logger"
 )
 
@@ -24,12 +24,12 @@ var Module = &cobrather.Module{
 	Short:   "Restore godeps dependencies",
 	Dependencies: []*cobrather.Module{
 		logger.Module,
-		flags.Module,
+		modFlags.Module,
 	},
 	Flags: []cobrather.Flag{
 		FlagToVendor,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return builder.Restore(logger.Logger, flags.All(), FlagToVendor.Bool())
+		return builder.Restore(logger.Logger, modFlags.All(), FlagToVendor.Bool())
 	},
 }

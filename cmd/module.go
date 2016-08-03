@@ -3,11 +3,11 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
-	"github.com/tsaikd/gobuilder/cmd/build"
-	"github.com/tsaikd/gobuilder/cmd/checkerror"
-	"github.com/tsaikd/gobuilder/cmd/dep"
-	"github.com/tsaikd/gobuilder/cmd/get"
-	"github.com/tsaikd/gobuilder/cmd/restore"
+	"github.com/tsaikd/gobuilder/cmd/modBuild"
+	"github.com/tsaikd/gobuilder/cmd/modCheckError"
+	"github.com/tsaikd/gobuilder/cmd/modDep"
+	"github.com/tsaikd/gobuilder/cmd/modGet"
+	"github.com/tsaikd/gobuilder/cmd/modRestore"
 )
 
 // Module info
@@ -15,20 +15,20 @@ var Module = &cobrather.Module{
 	Use:   "gobuilder",
 	Short: "Go application builder, run action: restore -> get -> build",
 	Commands: []*cobrather.Module{
-		dep.Module,
-		checkerror.Module,
-		restore.Module,
-		get.Module,
-		build.Module,
+		modDep.Module,
+		modCheckError.Module,
+		modRestore.Module,
+		modGet.Module,
+		modBuild.Module,
 		cobrather.VersionModule,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		runFuncs := []func(cmd *cobra.Command, args []string) error{}
 
 		cmdModules := []*cobrather.Module{
-			restore.Module,
-			get.Module,
-			build.Module,
+			modRestore.Module,
+			modGet.Module,
+			modBuild.Module,
 		}
 		depModules := cobrather.ListDeps(cobrather.OIncludeDepInCommand, cmdModules...)
 		preRun := cobrather.GenRunE(depModules...)

@@ -1,10 +1,10 @@
-package get
+package modGet
 
 import (
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/gobuilder/builder"
-	"github.com/tsaikd/gobuilder/cmd/flags"
+	"github.com/tsaikd/gobuilder/cmd/modFlags"
 	"github.com/tsaikd/gobuilder/logger"
 )
 
@@ -24,12 +24,12 @@ var Module = &cobrather.Module{
 	Short: "Go get dependencies",
 	Dependencies: []*cobrather.Module{
 		logger.Module,
-		flags.Module,
+		modFlags.Module,
 	},
 	GlobalFlags: []cobrather.Flag{
 		FlagTest,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return builder.GoGet(logger.Logger, flags.All(), FlagTest.Bool())
+		return builder.GoGet(logger.Logger, modFlags.All(), FlagTest.Bool())
 	},
 }

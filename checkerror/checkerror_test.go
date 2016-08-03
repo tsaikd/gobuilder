@@ -1,4 +1,4 @@
-package errorcheck
+package checkerror
 
 import (
 	"fmt"

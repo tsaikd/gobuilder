@@ -1,4 +1,4 @@
-package flags
+package modFlags
 
 import (
 	"github.com/spf13/viper"

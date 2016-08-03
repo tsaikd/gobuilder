@@ -4,11 +4,11 @@ import (
 	"os"
 
 	"github.com/tsaikd/gobuilder/cmd"
-	"github.com/tsaikd/gobuilder/cmd/flags"
+	"github.com/tsaikd/gobuilder/cmd/modFlags"
 )
 
 func main() {
-	rootCommand := cmd.Module.MustNewRootCommand(flags.Viper)
+	rootCommand := cmd.Module.MustNewRootCommand(modFlags.Viper)
 	rootCommand.SilenceUsage = true
 	if err := rootCommand.Execute(); err != nil {
 		os.Exit(-1)

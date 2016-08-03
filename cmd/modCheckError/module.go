@@ -1,4 +1,4 @@
-package checkerror
+package modCheckError
 
 import (
 	"strings"
@@ -7,7 +7,7 @@ import (
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/KDGoLib/pkgutil"
-	"github.com/tsaikd/gobuilder/errorcheck"
+	"github.com/tsaikd/gobuilder/checkerror"
 )
 
 // Module info
@@ -18,7 +18,7 @@ var Module = &cobrather.Module{
 	Example: strings.TrimSpace(`
 checkerror
 checkerror github.com/tsaikd/gobuilder
-checkerror github.com/tsaikd/gobuilder/errorcheck/vendor/errortest
+checkerror github.com/tsaikd/gobuilder/checkerror/vendor/errortest
 	`),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		errs := []error{}
@@ -28,19 +28,19 @@ checkerror github.com/tsaikd/gobuilder/errorcheck/vendor/errortest
 			if err != nil {
 				return err
 			}
-			if err := errorcheck.Check(pkg.ImportPath, pkg.Dir); err != nil {
+			if err := checkerror.Check(pkg.ImportPath, pkg.Dir); err != nil {
 				errs = append(errs, err)
 			}
 		} else {
 			for _, importPath := range args {
-				if err := errorcheck.Check(importPath, ""); err != nil {
+				if err := checkerror.Check(importPath, ""); err != nil {
 					errs = append(errs, err)
 				}
 			}
 		}
 
 		err := errutil.NewErrors(errs...)
-		if errorcheck.ErrorUnusedFactory2.In(err) {
+		if checkerror.ErrorUnusedFactory2.In(err) {
 			return errutil.New("Find redundant error factory")
 		}
 		return err

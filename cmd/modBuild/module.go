@@ -1,4 +1,4 @@
-package build
+package modBuild
 
 import (
 	"time"
@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/gobuilder/builder"
-	"github.com/tsaikd/gobuilder/cmd/flags"
+	"github.com/tsaikd/gobuilder/cmd/modFlags"
 	"github.com/tsaikd/gobuilder/logger"
 )
 
@@ -30,7 +30,7 @@ var Module = &cobrather.Module{
 	Short: "Build application with godeps info",
 	Dependencies: []*cobrather.Module{
 		logger.Module,
-		flags.Module,
+		modFlags.Module,
 	},
 	Flags: []cobrather.Flag{
 		FlagHashLen,

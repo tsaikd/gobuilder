@@ -1,4 +1,4 @@
-package errorcheck
+package checkerror
 
 import (
 	"go/ast"
@@ -26,6 +26,7 @@ func getImportSpecName(spec *ast.ImportSpec) (name string, importPath string) {
 	}
 	return filepath.Base(importPath), importPath
 }
+
 func isNoImportPathError(err error) bool {
 	if err == nil {
 		return false
