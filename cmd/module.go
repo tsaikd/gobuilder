@@ -5,6 +5,7 @@ import (
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/gobuilder/cmd/modBuild"
 	"github.com/tsaikd/gobuilder/cmd/modCheckError"
+	"github.com/tsaikd/gobuilder/cmd/modCheckFmt"
 	"github.com/tsaikd/gobuilder/cmd/modDep"
 	"github.com/tsaikd/gobuilder/cmd/modGet"
 	"github.com/tsaikd/gobuilder/cmd/modRestore"
@@ -16,7 +17,7 @@ var (
 		Name:      "check",
 		ShortHand: "c",
 		Default:   false,
-		Usage:     "Run check actions before build actions: checkerror",
+		Usage:     "Run check actions before build actions: checkerror -> checkfmt",
 	}
 )
 
@@ -27,6 +28,7 @@ var Module = &cobrather.Module{
 	Commands: []*cobrather.Module{
 		modDep.Module,
 		modCheckError.Module,
+		modCheckFmt.Module,
 		modRestore.Module,
 		modGet.Module,
 		modBuild.Module,
@@ -42,6 +44,7 @@ var Module = &cobrather.Module{
 		if FlagCheck.Bool() {
 			cmdModules = append(cmdModules,
 				modCheckError.Module,
+				modCheckFmt.Module,
 			)
 		}
 		cmdModules = append(cmdModules,
