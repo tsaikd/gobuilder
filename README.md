@@ -24,11 +24,8 @@ gobuilder
 
 ## Use gobuider with version constraint in build script
 ```
-if ! gobuilder version -c ">=0.1" &>/dev/null ; then
-	go get -u -v "github.com/tsaikd/gobuilder"
-fi
-
-gobuilder
+gobuilder version -c ">=0.1" &>/dev/null || go get -u -v "github.com/tsaikd/gobuilder"
+gobuilder --check
 ```
 
 ## [Example](example) application output
