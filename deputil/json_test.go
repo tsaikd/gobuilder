@@ -1,4 +1,4 @@
-package godepsutil
+package deputil
 
 import (
 	"encoding/json"

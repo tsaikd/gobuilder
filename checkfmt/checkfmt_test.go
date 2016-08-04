@@ -5,10 +5,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/tsaikd/KDGoLib/pkgutil"
 )
 
 func Example() {
-	if err := Check("github.com/tsaikd/gobuilder", ".."); err != nil {
+	pkglist, err := pkgutil.FindAllSubPackages("github.com/tsaikd/gobuilder", "..")
+	if err != nil {
+		fmt.Println(err)
+	}
+	if err := Check(pkglist); err != nil {
 		fmt.Println(err)
 	}
 	// Output:
@@ -18,6 +23,8 @@ func Test_errortest(t *testing.T) {
 	require := require.New(t)
 	require.NotNil(require)
 
-	err := Check("errortest", "")
+	pkglist, err := pkgutil.FindAllSubPackages("errortest", "")
+	require.NoError(err)
+	err = Check(pkglist)
 	require.Error(err)
 }

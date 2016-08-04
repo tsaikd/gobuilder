@@ -1,4 +1,4 @@
-package godepsutil
+package deputil
 
 import (
 	"encoding/json"
@@ -107,7 +107,7 @@ func (t *JSON) inDep(importPath string) bool {
 
 // NewJSON create godeps json config by analyzing dir
 func NewJSON(dir string) (result JSON, err error) {
-	if dir, err = fixDir(dir); err != nil {
+	if dir, err = filepath.Abs(dir); err != nil {
 		return
 	}
 
@@ -161,13 +161,4 @@ func parsePackageGoDeps(dir string) (result JSON, err error) {
 	}
 
 	return
-}
-
-// fix dir to absolute dir path for ImportDir
-func fixDir(dir string) (result string, err error) {
-	if dir == "." {
-		return os.Getwd()
-	}
-
-	return dir, nil
 }

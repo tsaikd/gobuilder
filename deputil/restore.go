@@ -1,4 +1,4 @@
-package godepsutil
+package deputil
 
 import (
 	"go/build"
@@ -21,7 +21,7 @@ var (
 
 // Restore package dependency by package Godeps.json
 func Restore(dir string, all bool, tovendor bool) (err error) {
-	if dir, err = fixDir(dir); err != nil {
+	if dir, err = filepath.Abs(dir); err != nil {
 		return
 	}
 

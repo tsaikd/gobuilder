@@ -10,7 +10,7 @@ import (
 
 // command line flags
 var (
-	FlagTest = &cobrather.BoolFlag{
+	flagTest = &cobrather.BoolFlag{
 		Name:      "test",
 		ShortHand: "t",
 		Default:   false,
@@ -27,9 +27,9 @@ var Module = &cobrather.Module{
 		modFlags.Module,
 	},
 	GlobalFlags: []cobrather.Flag{
-		FlagTest,
+		flagTest,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return builder.GoGet(logger.Logger, modFlags.All(), FlagTest.Bool())
+		return builder.GoGet(logger.Logger, modFlags.All(), flagTest.Bool())
 	},
 }

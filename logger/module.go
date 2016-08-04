@@ -9,17 +9,17 @@ import (
 
 // Debug return current flag
 func Debug() bool {
-	return FlagDebug.Bool() || FlagTravis.Bool()
+	return flagDebug.Bool() || flagTravis.Bool()
 }
 
 // command line flags
 var (
-	FlagDebug = &cobrather.BoolFlag{
+	flagDebug = &cobrather.BoolFlag{
 		Name:    "debug",
 		Default: false,
 		Usage:   "Run in debug mode",
 	}
-	FlagTravis = &cobrather.BoolFlag{
+	flagTravis = &cobrather.BoolFlag{
 		Name:    "travis",
 		Default: false,
 		EnvVar:  "TRAVIS",
@@ -30,8 +30,8 @@ var (
 // Module info
 var Module = &cobrather.Module{
 	GlobalFlags: []cobrather.Flag{
-		FlagDebug,
-		FlagTravis,
+		flagDebug,
+		flagTravis,
 	},
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		if Debug() {

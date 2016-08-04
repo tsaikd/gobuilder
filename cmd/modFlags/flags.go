@@ -10,12 +10,12 @@ var Viper = viper.New()
 
 // All return current flag
 func All() bool {
-	return FlagAll.Bool()
+	return flagAll.Bool()
 }
 
 // command line flags
 var (
-	FlagAll = &cobrather.BoolFlag{
+	flagAll = &cobrather.BoolFlag{
 		Name:      "all",
 		ShortHand: "a",
 		Default:   false,
@@ -26,6 +26,6 @@ var (
 // Module info
 var Module = &cobrather.Module{
 	GlobalFlags: []cobrather.Flag{
-		FlagAll,
+		flagAll,
 	},
 }

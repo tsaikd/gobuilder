@@ -1,4 +1,4 @@
-package godepsutil
+package deputil
 
 import (
 	"path/filepath"
@@ -19,6 +19,10 @@ func Check(dir string, all bool) (err error) {
 	done := map[string]bool{}
 	mismatches := []error{}
 
+	if dir, err = filepath.Abs(dir); err != nil {
+		return
+	}
+
 	if err = checkDir(dir, all, done, &mismatches); err != nil {
 		return
 	}
@@ -31,10 +35,6 @@ func Check(dir string, all bool) (err error) {
 }
 
 func checkDir(dir string, all bool, done map[string]bool, mismatches *[]error) (err error) {
-	if dir, err = fixDir(dir); err != nil {
-		return
-	}
-
 	if godepsJSON, err := parsePackageGoDeps(dir); err == nil {
 		if err = checkJSON(godepsJSON, dir, all, done, mismatches); err != nil {
 			return err

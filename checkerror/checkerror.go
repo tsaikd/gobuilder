@@ -14,21 +14,12 @@ import (
 
 // errors
 var (
-	ErrorUnusedFactory2      = errutil.NewFactory("error factory %q %q declared but not used")
-	WarnNoErrorFactoryFound1 = errutil.NewFactory("no error factory found in %q")
+	ErrorUnusedFactory2     = errutil.NewFactory("error factory %q %q declared but not used")
+	WarnNoErrorFactoryFound = errutil.NewFactory("no error factory found")
 )
 
-// Check redundant error factory, including sub packages, but ignore vendor
-func Check(importPath string, srcDir string) (err error) {
-	if srcDir, err = filepath.Abs(srcDir); err != nil {
-		return
-	}
-
-	pkglist, err := pkgutil.FindAllSubPackages(importPath, srcDir)
-	if err != nil {
-		return
-	}
-
+// Check redundant error factory in pkglist
+func Check(pkglist *pkgutil.PackageList) (err error) {
 	errorFactories := &errorFactoryList{}
 	for pkg := range pkglist.Map() {
 		if err = collectErrorFactory(errorFactories, pkg.ImportPath); err != nil {
@@ -37,12 +28,12 @@ func Check(importPath string, srcDir string) (err error) {
 	}
 
 	if errorFactories.isEmpty() {
-		errutil.Trace(WarnNoErrorFactoryFound1.New(nil, importPath))
+		errutil.Trace(WarnNoErrorFactoryFound.New(nil))
 		return
 	}
 
 	for pkg := range pkglist.Map() {
-		if err = consumeErrorFactory(errorFactories, pkg.ImportPath, srcDir, pkglist); err != nil {
+		if err = consumeErrorFactory(errorFactories, pkg, pkglist); err != nil {
 			return
 		}
 	}
@@ -86,11 +77,9 @@ func collectErrorFactory(result *errorFactoryList, importPath string) (err error
 
 func consumeErrorFactory(
 	result *errorFactoryList,
-	importPath string,
-	srcDir string,
+	pkg *build.Package,
 	pkglist *pkgutil.PackageList,
 ) (err error) {
-	pkg, _ := build.Import(importPath, srcDir, 0)
 	for _, gofile := range pkg.GoFiles {
 		name := filepath.Join(pkg.Dir, gofile)
 		fset := token.NewFileSet()
@@ -116,7 +105,7 @@ func consumeErrorFactory(
 						result.removeName(imppkg.ImportPath + "|" + x.Sel.Name)
 					} else {
 						// handle usage in same package
-						result.removeName(importPath + "|" + x1.Name)
+						result.removeName(pkg.ImportPath + "|" + x1.Name)
 					}
 				}
 			}

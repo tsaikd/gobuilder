@@ -3,21 +3,23 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
+	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/gobuilder/cmd/modBuild"
 	"github.com/tsaikd/gobuilder/cmd/modCheckError"
 	"github.com/tsaikd/gobuilder/cmd/modCheckFmt"
 	"github.com/tsaikd/gobuilder/cmd/modDep"
 	"github.com/tsaikd/gobuilder/cmd/modGet"
 	"github.com/tsaikd/gobuilder/cmd/modRestore"
+	"github.com/tsaikd/gobuilder/deputil"
 )
 
 // command line flags
 var (
-	FlagCheck = &cobrather.BoolFlag{
+	flagCheck = &cobrather.BoolFlag{
 		Name:      "check",
 		ShortHand: "c",
 		Default:   false,
-		Usage:     "Run check actions before build actions: checkerror -> checkfmt",
+		Usage:     "Run check actions before build actions: dep -> checkerror -> checkfmt",
 	}
 )
 
@@ -35,13 +37,20 @@ var Module = &cobrather.Module{
 		cobrather.VersionModule,
 	},
 	Flags: []cobrather.Flag{
-		FlagCheck,
+		flagCheck,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		runFuncs := []func(cmd *cobra.Command, args []string) error{}
 
+		if err := deputil.Check("", false); err != nil {
+			if deputil.ErrorDepRevMismatch4.In(err) {
+				return errutil.New("Check dependencies failed")
+			}
+			return err
+		}
+
 		cmdModules := []*cobrather.Module{}
-		if FlagCheck.Bool() {
+		if flagCheck.Bool() {
 			cmdModules = append(cmdModules,
 				modCheckError.Module,
 				modCheckFmt.Module,

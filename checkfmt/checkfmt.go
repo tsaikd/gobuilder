@@ -14,17 +14,8 @@ var (
 	ErrorUnformat1 = errutil.NewFactory("found unformatted go source: %q")
 )
 
-// Check go source code are all already formated, but ignore vendor
-func Check(importPath string, srcDir string) (err error) {
-	if srcDir, err = filepath.Abs(srcDir); err != nil {
-		return
-	}
-
-	pkglist, err := pkgutil.FindAllSubPackages(importPath, srcDir)
-	if err != nil {
-		return
-	}
-
+// Check go source code are all already formated in pkglist
+func Check(pkglist *pkgutil.PackageList) (err error) {
 	errs := []error{}
 	for pkg := range pkglist.Map() {
 		for _, name := range pkg.GoFiles {
@@ -40,7 +31,6 @@ func Check(importPath string, srcDir string) (err error) {
 			}
 		}
 	}
-
 	return errutil.NewErrors(errs...)
 }
 

@@ -5,40 +5,33 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
-	"github.com/tsaikd/KDGoLib/errutil"
-	"github.com/tsaikd/KDGoLib/pkgutil"
 	"github.com/tsaikd/gobuilder/checkfmt"
+	"github.com/tsaikd/gobuilder/cmd/cmdutil"
+	"github.com/tsaikd/gobuilder/logger"
 )
 
 // Module info
 var Module = &cobrather.Module{
 	Use:     "checkfmt",
-	Aliases: []string{"chkfmt"},
+	Aliases: []string{"chkfmt", "cf"},
 	Short:   "Check go source code are all already formated",
 	Example: strings.TrimSpace(`
 checkfmt
-checkfmt github.com/tsaikd/gobuilder
-checkfmt github.com/tsaikd/gobuilder/checkfmt/vendor/errortest
+checkfmt github.com/tsaikd/gobuilder/...
+checkfmt github.com/tsaikd/gobuilder/checkfmt/vendor/errortest/...
+checkfmt ./checkfmt/...
 	`),
+	Dependencies: []*cobrather.Module{
+		logger.Module,
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		errs := []error{}
-
-		if len(args) < 1 {
-			pkg, err := pkgutil.GuessPackageFromDir("")
-			if err != nil {
-				return err
-			}
-			if err := checkfmt.Check(pkg.ImportPath, pkg.Dir); err != nil {
-				errs = append(errs, err)
-			}
-		} else {
-			for _, importPath := range args {
-				if err := checkfmt.Check(importPath, ""); err != nil {
-					errs = append(errs, err)
-				}
-			}
+		pkglist, err := cmdutil.ParsePackagePaths("", args...)
+		if err != nil {
+			return err
 		}
 
-		return errutil.NewErrors(errs...)
+		logger.Logger.Debugf("check source code formatted in %d packages", pkglist.Len())
+
+		return checkfmt.Check(pkglist)
 	},
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/gobuilder/cmd/modFlags"
-	"github.com/tsaikd/gobuilder/godepsutil"
+	"github.com/tsaikd/gobuilder/deputil"
 )
 
 // Module info
@@ -16,8 +16,8 @@ var Module = &cobrather.Module{
 		modFlags.Module,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := godepsutil.Check(".", modFlags.All()); err != nil {
-			if godepsutil.ErrorDepRevMismatch4.In(err) {
+		if err := deputil.Check("", modFlags.All()); err != nil {
+			if deputil.ErrorDepRevMismatch4.In(err) {
 				return errutil.New("Check dependencies failed")
 			}
 			return err

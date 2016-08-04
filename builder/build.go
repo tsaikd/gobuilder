@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"encoding/json"
 	"fmt"
 	"go/build"
 	"os"
@@ -9,8 +10,8 @@ import (
 
 	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/KDGoLib/logutil"
+	"github.com/tsaikd/gobuilder/deputil"
 	"github.com/tsaikd/gobuilder/executil"
-	"github.com/tsaikd/gobuilder/godepsutil"
 )
 
 // Build golang application source code
@@ -59,7 +60,7 @@ func Build(logger logutil.LevelLogger, hashLen int64, timeFormat string) (err er
 }
 
 func getIdentify(hashLen int64) (identify string, err error) {
-	godepsJSON, err := godepsutil.NewJSON(".")
+	godepsJSON, err := deputil.NewJSON(".")
 	if err != nil {
 		return
 	}
@@ -77,4 +78,13 @@ func getVersionPackageName() (pkgname string) {
 	}
 
 	return verpkg.ImportPath
+}
+
+func getGodepsJSON() (jsondata []byte, err error) {
+	godepsJSON, err := deputil.NewJSON(".")
+	if err != nil {
+		return
+	}
+
+	return json.Marshal(godepsJSON)
 }

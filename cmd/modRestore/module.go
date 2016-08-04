@@ -1,16 +1,19 @@
 package modRestore
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
-	"github.com/tsaikd/gobuilder/builder"
 	"github.com/tsaikd/gobuilder/cmd/modFlags"
+	"github.com/tsaikd/gobuilder/deputil"
 	"github.com/tsaikd/gobuilder/logger"
 )
 
 // command line flags
 var (
-	FlagToVendor = &cobrather.BoolFlag{
+	flagToVendor = &cobrather.BoolFlag{
 		Name:    "tovendor",
 		Default: false,
 		Usage:   "Restore package to vendor directory instead of GOPATH if vendor directory not found",
@@ -27,9 +30,14 @@ var Module = &cobrather.Module{
 		modFlags.Module,
 	},
 	Flags: []cobrather.Flag{
-		FlagToVendor,
+		flagToVendor,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return builder.Restore(logger.Logger, modFlags.All(), FlagToVendor.Bool())
+		if _, err := os.Stat(filepath.Join("Godeps", "Godeps.json")); os.IsNotExist(err) {
+			return nil
+		}
+
+		logger.Logger.Debugln("restore godeps dependencies")
+		return deputil.Restore("", modFlags.All(), flagToVendor.Bool())
 	},
 }

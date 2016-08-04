@@ -12,12 +12,12 @@ import (
 
 // command line flags
 var (
-	FlagHashLen = &cobrather.Int64Flag{
+	flagHashLen = &cobrather.Int64Flag{
 		Name:    "hashlen",
 		Default: 6,
 		Usage:   "Builder extract version control hash length",
 	}
-	FlagTimeFmt = &cobrather.StringFlag{
+	flagTimeFmt = &cobrather.StringFlag{
 		Name:    "timefmt",
 		Default: time.RFC1123,
 		Usage:   "Build time format",
@@ -33,10 +33,10 @@ var Module = &cobrather.Module{
 		modFlags.Module,
 	},
 	Flags: []cobrather.Flag{
-		FlagHashLen,
-		FlagTimeFmt,
+		flagHashLen,
+		flagTimeFmt,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return builder.Build(logger.Logger, FlagHashLen.Int64(), FlagTimeFmt.String())
+		return builder.Build(logger.Logger, flagHashLen.Int64(), flagTimeFmt.String())
 	},
 }
