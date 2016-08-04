@@ -3,14 +3,14 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
-	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/gobuilder/cmd/modBuild"
 	"github.com/tsaikd/gobuilder/cmd/modCheckError"
 	"github.com/tsaikd/gobuilder/cmd/modCheckFmt"
 	"github.com/tsaikd/gobuilder/cmd/modDep"
+	"github.com/tsaikd/gobuilder/cmd/modFlags"
 	"github.com/tsaikd/gobuilder/cmd/modGet"
 	"github.com/tsaikd/gobuilder/cmd/modRestore"
-	"github.com/tsaikd/gobuilder/deputil"
+	"github.com/tsaikd/gobuilder/cmd/modTest"
 )
 
 // command line flags
@@ -19,14 +19,14 @@ var (
 		Name:      "check",
 		ShortHand: "c",
 		Default:   false,
-		Usage:     "Run check actions before build actions: dep -> checkerror -> checkfmt",
+		Usage:     "Run check actions before build actions: checkerror -> checkfmt",
 	}
 )
 
 // Module info
 var Module = &cobrather.Module{
 	Use:   "gobuilder",
-	Short: "Go application builder, run action: restore -> get -> build",
+	Short: "Go application builder, run action: restore -> get -> build -> test",
 	Commands: []*cobrather.Module{
 		modDep.Module,
 		modCheckError.Module,
@@ -34,20 +34,17 @@ var Module = &cobrather.Module{
 		modRestore.Module,
 		modGet.Module,
 		modBuild.Module,
+		modTest.Module,
 		cobrather.VersionModule,
+	},
+	Dependencies: []*cobrather.Module{
+		modFlags.Module,
 	},
 	Flags: []cobrather.Flag{
 		flagCheck,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		runFuncs := []func(cmd *cobra.Command, args []string) error{}
-
-		if err := deputil.Check("", false); err != nil {
-			if deputil.ErrorDepRevMismatch4.In(err) {
-				return errutil.New("Check dependencies failed")
-			}
-			return err
-		}
 
 		cmdModules := []*cobrather.Module{}
 		if flagCheck.Bool() {
@@ -61,6 +58,9 @@ var Module = &cobrather.Module{
 			modGet.Module,
 			modBuild.Module,
 		)
+		if modFlags.Test() {
+			cmdModules = append(cmdModules, modTest.Module)
+		}
 
 		depModules := cobrather.ListDeps(cobrather.OIncludeDepInCommand, cmdModules...)
 		preRun := cobrather.GenRunE(depModules...)

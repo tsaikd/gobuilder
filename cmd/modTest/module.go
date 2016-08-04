@@ -1,4 +1,4 @@
-package modGet
+package modTest
 
 import (
 	"github.com/spf13/cobra"
@@ -10,13 +10,13 @@ import (
 
 // Module info
 var Module = &cobrather.Module{
-	Use:   "get",
-	Short: "Go get dependencies",
+	Use:   "test",
+	Short: "Test go package and sub packages",
 	Dependencies: []*cobrather.Module{
 		logger.Module,
 		modFlags.Module,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return builder.GoGet(logger.Logger, modFlags.All(), modFlags.Test())
+		return builder.GoTest(logger.Logger, modFlags.All())
 	},
 }

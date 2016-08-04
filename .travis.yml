@@ -6,6 +6,6 @@ go:
 
 install:
   - gobuilder version -c ">=0.1.1" &>/dev/null || go get -u -v "github.com/tsaikd/gobuilder"
-  - gobuilder --check --test --all
 
-script: go test -v ./...
+script:
+  - gobuilder --check --test --all
