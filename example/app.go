@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 )
@@ -20,7 +18,5 @@ var Module = &cobrather.Module{
 }
 
 func main() {
-	if err := Module.MustNewRootCommand(nil).Execute(); err != nil {
-		os.Exit(-1)
-	}
+	Module.MustMainRun()
 }
