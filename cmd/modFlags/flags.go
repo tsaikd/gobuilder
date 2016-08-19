@@ -1,12 +1,6 @@
 package modFlags
 
-import (
-	"github.com/spf13/viper"
-	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
-)
-
-// Viper export for app use
-var Viper = viper.New()
+import "github.com/tsaikd/KDGoLib/cliutil/cobrather"
 
 // All return current flag
 func All() bool {

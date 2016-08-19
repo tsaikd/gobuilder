@@ -5,7 +5,6 @@ import (
 	"go/build"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/tsaikd/KDGoLib/errutil"
@@ -23,8 +22,7 @@ var buildContext = build.Default
 type JSON struct {
 	depsType
 
-	GoVersion string
-	Deps      []depsType
+	Deps []depsType
 
 	rootPath     string
 	addedDep     map[string]bool
@@ -115,7 +113,6 @@ func NewJSON(dir string) (result JSON, err error) {
 		return
 	}
 
-	result.GoVersion = runtime.Version()
 	result.ImportPath = result.pkg.ImportPath
 
 	repo, err := vcs.RepoRootForImportPath(result.ImportPath, false)
