@@ -51,6 +51,12 @@ func (t *JSON) addDep(importPath string, pkg *build.Package) (err error) {
 	}
 	t.addedDep[importPath] = true
 
+	// ignore special packages
+	switch importPath {
+	case "C":
+		return
+	}
+
 	deppkg, err := buildContext.Import(importPath, pkg.Dir, 0)
 	if err != nil {
 		return
