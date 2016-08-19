@@ -24,17 +24,32 @@ func Run(name string, arg ...string) (err error) {
 // RunWD command with default config in dir
 func RunWD(dir string, name string, arg ...string) (err error) {
 	if dir != "" {
-		var pwd string
-		if pwd, err = os.Getwd(); err != nil {
+		defer StackWorkDir(dir, &err)()
+		if err != nil {
 			return
 		}
-		if err = os.Chdir(dir); err != nil {
-			return
-		}
-		defer func() {
-			errutil.Trace(os.Chdir(pwd))
-		}()
 	}
 
 	return Run(name, arg...)
+}
+
+// StackWorkDir change working directory and return recover function
+func StackWorkDir(dir string, perr *error) (recover func()) {
+	var pwd string
+	if pwd, *perr = os.Getwd(); *perr != nil {
+		return func() {}
+	}
+
+	if pwd == dir {
+		return func() {}
+	}
+
+	if *perr = os.Chdir(dir); *perr != nil {
+		return func() {}
+	}
+	return func() {
+		if err := os.Chdir(pwd); err != nil {
+			*perr = errutil.NewErrors(err, *perr)
+		}
+	}
 }

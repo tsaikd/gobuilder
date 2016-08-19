@@ -96,7 +96,7 @@ func restorePackage(srcroot string, importPath string, rev string) (err error) {
 		return ErrorGetRepoInfo1.New(err, importPath)
 	}
 
-	if repo.VCS.Name == "Git" {
+	if repo.VCS.Name == vcsNameGit {
 		// disable git tag lookup, so revision hash can be used for TagSync
 		repo.VCS.TagLookupCmd = []vcs.TagCmd{}
 	}
@@ -129,7 +129,7 @@ func restorePackage(srcroot string, importPath string, rev string) (err error) {
 		}
 	}
 	// restore submodules
-	if repo.VCS.Name == "Git" {
+	if repo.VCS.Name == vcsNameGit {
 		if err = executil.RunWD(dir, "git", "submodule", "update", "--init", "--recursive"); err != nil {
 			return ErrorRestoreSubmoduleFailed1.New(err, dir)
 		}
