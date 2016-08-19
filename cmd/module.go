@@ -6,6 +6,7 @@ import (
 	"github.com/tsaikd/gobuilder/cmd/modBuild"
 	"github.com/tsaikd/gobuilder/cmd/modCheckError"
 	"github.com/tsaikd/gobuilder/cmd/modCheckFmt"
+	"github.com/tsaikd/gobuilder/cmd/modCheckRedundant"
 	"github.com/tsaikd/gobuilder/cmd/modDep"
 	"github.com/tsaikd/gobuilder/cmd/modFlags"
 	"github.com/tsaikd/gobuilder/cmd/modGet"
@@ -19,7 +20,7 @@ var (
 		Name:      "check",
 		ShortHand: "c",
 		Default:   false,
-		Usage:     "Run check actions before build actions: checkerror -> checkfmt",
+		Usage:     "Run check actions before build actions: checkerror -> checkfmt -> checkredundant",
 	}
 )
 
@@ -31,6 +32,7 @@ var Module = &cobrather.Module{
 		modDep.Module,
 		modCheckError.Module,
 		modCheckFmt.Module,
+		modCheckRedundant.Module,
 		modRestore.Module,
 		modGet.Module,
 		modBuild.Module,
@@ -51,6 +53,7 @@ var Module = &cobrather.Module{
 			cmdModules = append(cmdModules,
 				modCheckError.Module,
 				modCheckFmt.Module,
+				modCheckRedundant.Module,
 			)
 		}
 		cmdModules = append(cmdModules,
