@@ -20,7 +20,7 @@ var (
 		Name:      "check",
 		ShortHand: "c",
 		Default:   false,
-		Usage:     "Run check actions before build actions: checkerror -> checkfmt -> checkredundant",
+		Usage:     "Add check actions in building chain: checkerror -> checkfmt -> [BUILD ACTIONS] -> checkredundant",
 	}
 )
 
@@ -53,7 +53,6 @@ var Module = &cobrather.Module{
 			cmdModules = append(cmdModules,
 				modCheckError.Module,
 				modCheckFmt.Module,
-				modCheckRedundant.Module,
 			)
 		}
 		cmdModules = append(cmdModules,
@@ -63,6 +62,9 @@ var Module = &cobrather.Module{
 		)
 		if modFlags.Test() {
 			cmdModules = append(cmdModules, modTest.Module)
+		}
+		if flagCheck.Bool() {
+			cmdModules = append(cmdModules, modCheckRedundant.Module)
 		}
 
 		depModules := cobrather.ListDeps(cobrather.OIncludeDepInCommand, cmdModules...)
