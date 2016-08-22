@@ -17,6 +17,7 @@ var Module = &cobrather.Module{
 		modFlags.Module,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		logger.Logger.Debugln("go test packages")
 		return builder.GoTest(logger.Logger, modFlags.All())
 	},
 }

@@ -17,6 +17,7 @@ var Module = &cobrather.Module{
 		modFlags.Module,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		logger.Logger.Debugln("go get dependent packages")
 		return builder.GoGet(logger.Logger, modFlags.All(), modFlags.Test())
 	},
 }

@@ -10,7 +10,6 @@ import (
 
 // GoGet run go get command
 func GoGet(logger logutil.LevelLogger, all bool, test bool) (err error) {
-	logger.Debugln("go get dependent packages")
 	getArgs := []string{"get", "-v"}
 	if test {
 		getArgs = append(getArgs, "-t")
