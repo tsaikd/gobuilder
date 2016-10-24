@@ -24,7 +24,8 @@ var defaultImporter = importer.Default()
 // Check redundant error factory in pkglist
 func Check(pkglist *pkgutil.PackageList, allowNoFactory bool) (errs []error) {
 	errorFactories := &errorFactoryList{}
-	for pkg := range pkglist.Map() {
+	pkgs := pkglist.Sorted()
+	for _, pkg := range pkgs {
 		if err := collectErrorFactory(errorFactories, pkg.ImportPath); err != nil {
 			return []error{err}
 		}
@@ -38,7 +39,7 @@ func Check(pkglist *pkgutil.PackageList, allowNoFactory bool) (errs []error) {
 		return
 	}
 
-	for pkg := range pkglist.Map() {
+	for _, pkg := range pkgs {
 		if err := consumeErrorFactory(errorFactories, pkg, pkglist); err != nil {
 			return []error{err}
 		}

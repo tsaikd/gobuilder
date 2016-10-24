@@ -38,7 +38,7 @@ func GoTest(logger logutil.LevelLogger, all bool) (err error) {
 		return
 	}
 	var testpath string
-	for pkg := range pkglist.Map() {
+	for _, pkg := range pkglist.Sorted() {
 		if testpath, err = filepath.Rel(srcDir, pkg.Dir); err != nil {
 			return
 		}

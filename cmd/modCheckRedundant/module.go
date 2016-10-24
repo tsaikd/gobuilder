@@ -32,7 +32,7 @@ checkredundant ./checkfmt/...
 
 		logger.Logger.Debugf("check redundant packages in Godeps %d packages", pkglist.Len())
 
-		for pkg := range pkglist.Map() {
+		for _, pkg := range pkglist.Sorted() {
 			if err = deputil.CheckRedundant(pkg.Dir); err != nil {
 				return err
 			}

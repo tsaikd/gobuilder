@@ -17,7 +17,7 @@ var (
 // Check go source code are all already formated in pkglist
 func Check(pkglist *pkgutil.PackageList) (err error) {
 	errs := []error{}
-	for pkg := range pkglist.Map() {
+	for _, pkg := range pkglist.Sorted() {
 		for _, name := range pkg.GoFiles {
 			fpath := filepath.Join(pkg.Dir, name)
 			if err = checkGoFile(fpath); err != nil {
