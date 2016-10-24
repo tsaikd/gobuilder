@@ -1,3 +1,0 @@
-package crosspkgtest
-
-func main() {}

@@ -15,3 +15,6 @@ var (
 func main() {
 	fmt.Println(ErrorProvideSelfTest.New(nil))
 }
+
+// Nothing public method to do nothing
+func Nothing() {}

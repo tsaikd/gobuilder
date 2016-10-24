@@ -10,49 +10,52 @@ import (
 
 	"github.com/tsaikd/KDGoLib/errutil"
 	"github.com/tsaikd/KDGoLib/pkgutil"
+	"github.com/tsaikd/gobuilder/logger"
 )
 
 // errors
 var (
-	ErrorUnusedFactory2     = errutil.NewFactory("error factory %q %q declared but not used")
-	WarnNoErrorFactoryFound = errutil.NewFactory("no error factory found")
+	ErrorUnusedFactory2      = errutil.NewFactory("error factory %q %q declared but not used")
+	ErrorNoErrorFactoryFound = errutil.NewFactory("no error factory found")
 )
 
+var defaultImporter = importer.Default()
+
 // Check redundant error factory in pkglist
-func Check(pkglist *pkgutil.PackageList) (err error) {
+func Check(pkglist *pkgutil.PackageList, allowNoFactory bool) (errs []error) {
 	errorFactories := &errorFactoryList{}
 	for pkg := range pkglist.Map() {
-		if err = collectErrorFactory(errorFactories, pkg.ImportPath); err != nil {
-			return
+		if err := collectErrorFactory(errorFactories, pkg.ImportPath); err != nil {
+			return []error{err}
 		}
 	}
 
 	if errorFactories.isEmpty() {
-		errutil.Trace(WarnNoErrorFactoryFound.New(nil))
+		if !allowNoFactory {
+			return []error{ErrorNoErrorFactoryFound.New(nil)}
+		}
+		logger.Logger.Debug(ErrorNoErrorFactoryFound.New(nil))
 		return
 	}
 
 	for pkg := range pkglist.Map() {
-		if err = consumeErrorFactory(errorFactories, pkg, pkglist); err != nil {
-			return
+		if err := consumeErrorFactory(errorFactories, pkg, pkglist); err != nil {
+			return []error{err}
 		}
 	}
 
 	if !errorFactories.isEmpty() {
-		errs := []error{}
 		for obj := range errorFactories.objpool {
-			err = ErrorUnusedFactory2.New(nil, obj.Pkg().Path(), obj.Name())
-			errutil.Trace(err)
+			err := ErrorUnusedFactory2.New(nil, obj.Pkg().Path(), obj.Name())
 			errs = append(errs, err)
 		}
-		return errutil.NewErrors(errs...)
 	}
 
-	return nil
+	return
 }
 
 func collectErrorFactory(result *errorFactoryList, importPath string) (err error) {
-	pkg, err := importer.Default().Import(importPath)
+	pkg, err := defaultImporter.Import(importPath)
 	if err != nil {
 		if isNoImportPathError(err) {
 			// maybe the package is deprecated

@@ -1,6 +1,7 @@
 package modCheckError
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -9,6 +10,14 @@ import (
 	"github.com/tsaikd/gobuilder/checkerror"
 	"github.com/tsaikd/gobuilder/cmd/cmdutil"
 	"github.com/tsaikd/gobuilder/logger"
+)
+
+// command line flags
+var (
+	flagStrict = &cobrather.BoolFlag{
+		Name:  "strict",
+		Usage: "Return error if no error factory found",
+	}
 )
 
 // Module info
@@ -25,6 +34,9 @@ checkerror ./checkerror/...
 	Dependencies: []*cobrather.Module{
 		logger.Module,
 	},
+	Flags: []cobrather.Flag{
+		flagStrict,
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pkglist, err := cmdutil.ParsePackagePaths("", args...)
 		if err != nil {
@@ -33,7 +45,14 @@ checkerror ./checkerror/...
 
 		logger.Logger.Debugf("check redundant ErrorFactory in %d packages", pkglist.Len())
 
-		err = checkerror.Check(pkglist)
+		allowNoFactory := !flagStrict.Bool()
+		errs := checkerror.Check(pkglist, allowNoFactory)
+		for _, err = range errs {
+			if checkerror.ErrorUnusedFactory2.Match(err) {
+				fmt.Println(err)
+			}
+		}
+		err = errutil.NewErrors(errs...)
 		if checkerror.ErrorUnusedFactory2.In(err) {
 			return errutil.New("Find redundant error factory")
 		}
