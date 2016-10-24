@@ -20,23 +20,23 @@ var (
 		Name:      "check",
 		ShortHand: "c",
 		Default:   false,
-		Usage:     "Add check actions in building chain: checkerror -> checkfmt -> [BUILD ACTIONS] -> checkredundant",
+		Usage:     "Add check actions in building chain: checkfmt -> <BUILD ACTIONS> -> checkerror -> checkredundant",
 	}
 )
 
 // Module info
 var Module = &cobrather.Module{
 	Use:   "gobuilder",
-	Short: "Go application builder, run action: restore -> get -> build -> test",
+	Short: "Go application builder, run action: restore -> get -> build -> [test]",
 	Commands: []*cobrather.Module{
 		modDep.Module,
-		modCheckError.Module,
 		modCheckFmt.Module,
-		modCheckRedundant.Module,
 		modRestore.Module,
 		modGet.Module,
 		modBuild.Module,
 		modTest.Module,
+		modCheckError.Module,
+		modCheckRedundant.Module,
 		cobrather.VersionModule,
 	},
 	Dependencies: []*cobrather.Module{
@@ -51,7 +51,6 @@ var Module = &cobrather.Module{
 		cmdModules := []*cobrather.Module{}
 		if flagCheck.Bool() {
 			cmdModules = append(cmdModules,
-				modCheckError.Module,
 				modCheckFmt.Module,
 			)
 		}
@@ -61,10 +60,15 @@ var Module = &cobrather.Module{
 			modBuild.Module,
 		)
 		if modFlags.Test() {
-			cmdModules = append(cmdModules, modTest.Module)
+			cmdModules = append(cmdModules,
+				modTest.Module,
+			)
 		}
 		if flagCheck.Bool() {
-			cmdModules = append(cmdModules, modCheckRedundant.Module)
+			cmdModules = append(cmdModules,
+				modCheckError.Module,
+				modCheckRedundant.Module,
+			)
 		}
 
 		depModules := cobrather.ListDeps(cobrather.OIncludeDepInCommand, cmdModules...)
