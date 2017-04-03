@@ -1,0 +1,19 @@
+{
+    "dependencies": {
+        "github.com/Sirupsen/logrus": {
+            "branch": "master"
+        },
+        "github.com/spf13/cobra": {
+            "branch": "master"
+        },
+        "github.com/stretchr/testify": {
+            "branch": "master"
+        },
+        "github.com/tsaikd/KDGoLib": {
+            "branch": "master"
+        },
+        "github.com/tsaikd/tools": {
+            "branch": "master"
+        }
+    }
+}

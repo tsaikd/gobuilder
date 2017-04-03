@@ -19,7 +19,7 @@ func TestNewJSON_root(t *testing.T) {
 	require.NoError(err)
 	require.NotEmpty(godepsJSON.Rev)
 	require.NotEmpty(godepsJSON.RevTime)
-	require.NotEmpty(godepsJSON.Deps)
+	require.Empty(godepsJSON.Deps)
 	require.Contains(godepsJSON.ImportPath, "github.com/tsaikd/gobuilder")
 
 	data, err := json.MarshalIndent(godepsJSON, "", "  ")
@@ -42,13 +42,13 @@ func TestNewJSON_lib(t *testing.T) {
 	require.NoError(err)
 	require.NotEmpty(godepsJSON.Rev)
 	require.NotEmpty(godepsJSON.RevTime)
-	require.NotEmpty(godepsJSON.Deps)
+	require.Empty(godepsJSON.Deps)
 	require.Contains(godepsJSON.ImportPath, "github.com/tsaikd/gobuilder/builder")
 
-	data, err := json.MarshalIndent(godepsJSON, "", "  ")
+	_, err = json.MarshalIndent(godepsJSON, "", "  ")
 	require.NoError(err)
 
-	data, err = json.MarshalIndent(godepsJSON.Deps, "", "  ")
+	data, err := json.MarshalIndent(godepsJSON.Deps, "", "  ")
 	require.NoError(err)
 	require.NotContains(string(data), "github.com/tsaikd/gobuilder")
 }

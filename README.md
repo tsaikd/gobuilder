@@ -28,7 +28,14 @@ gobuilder version -c ">=0.1" &>/dev/null || go get -u -v "github.com/tsaikd/gobu
 gobuilder --check
 ```
 
+### Use gobuilder to check redundant error factory require go install packages
+```
+go install ./package_to_check
+gobuilder checkerror ./package_to_check
+```
+
 ## [Example](example) application output
+* Deps field will be null if dependent package in vendor
 ```
 $ gobuilder
 $ ./example version -n

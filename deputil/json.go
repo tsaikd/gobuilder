@@ -26,7 +26,7 @@ var buildContext = build.Default
 // JSON contains godeps config json information
 type JSON struct {
 	packageInfo
-	Deps []depsType
+	Deps []depsType `json:",omitempty"`
 
 	addedDep     map[string]bool
 	addedDepRoot map[string]bool
