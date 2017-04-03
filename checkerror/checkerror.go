@@ -112,6 +112,8 @@ func consumeErrorFactory(
 						result.removeName(getPackageNameInList(pkg.ImportPath, x1.Name))
 					}
 				}
+			case *ast.Ident:
+				result.removeNameTwice(getPackageNameInList(pkg.ImportPath, x.Name))
 			}
 			return true
 		})

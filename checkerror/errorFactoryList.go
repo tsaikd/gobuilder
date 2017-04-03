@@ -6,8 +6,9 @@ import (
 )
 
 type errorFactoryList struct {
-	objpool  map[types.Object]bool
-	namepool map[string]types.Object
+	objpool   map[types.Object]bool
+	namepool  map[string]types.Object
+	twicepool map[string]int8
 }
 
 func (t *errorFactoryList) ensureInit() {
@@ -16,6 +17,9 @@ func (t *errorFactoryList) ensureInit() {
 	}
 	if t.namepool == nil {
 		t.namepool = map[string]types.Object{}
+	}
+	if t.twicepool == nil {
+		t.twicepool = map[string]int8{}
 	}
 }
 
@@ -30,6 +34,20 @@ func (t *errorFactoryList) removeName(name string) {
 	if obj, exist := t.namepool[name]; exist {
 		delete(t.namepool, name)
 		delete(t.objpool, obj)
+	}
+}
+
+// removeNameTwice remove name if called twice
+func (t *errorFactoryList) removeNameTwice(name string) {
+	t.ensureInit()
+	if obj, exist := t.namepool[name]; exist {
+		if count, twiceExist := t.twicepool[name]; twiceExist {
+			t.twicepool[name] = count + 1
+			delete(t.namepool, name)
+			delete(t.objpool, obj)
+		} else {
+			t.twicepool[name] = 1
+		}
 	}
 }
 
