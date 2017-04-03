@@ -24,6 +24,9 @@ func CheckRedundant(dir string) (err error) {
 func checkRedundant(dir string, redudant *[]error) (err error) {
 	jsonfile, err := parsePackageGoDeps(dir)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
 		return
 	}
 
