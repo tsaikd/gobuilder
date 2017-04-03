@@ -46,7 +46,7 @@ func Check(pkglist *pkgutil.PackageList, allowNoFactory bool) (errs []error) {
 	}
 
 	if !errorFactories.isEmpty() {
-		for obj := range errorFactories.objpool {
+		for _, obj := range errorFactories.sortedObjects() {
 			err := ErrorUnusedFactory2.New(nil, obj.Pkg().Path(), obj.Name())
 			errs = append(errs, err)
 		}
@@ -106,10 +106,10 @@ func consumeErrorFactory(
 				case *ast.Ident:
 					if imppkg := importPkgs[x1.Name]; imppkg != nil {
 						// handle usage in different package
-						result.removeName(imppkg.ImportPath + "|" + x.Sel.Name)
+						result.removeName(getPackageNameInList(imppkg.ImportPath, x.Sel.Name))
 					} else {
 						// handle usage in same package
-						result.removeName(pkg.ImportPath + "|" + x1.Name)
+						result.removeName(getPackageNameInList(pkg.ImportPath, x1.Name))
 					}
 				}
 			}

@@ -8,8 +8,12 @@ import (
 	"strings"
 )
 
+func getPackageNameInList(importPath string, pkgname string) string {
+	return importPath + " | " + pkgname
+}
+
 func getTypesObjectName(obj types.Object) string {
-	return obj.Pkg().Path() + "|" + obj.Name()
+	return getPackageNameInList(obj.Pkg().Path(), obj.Name())
 }
 
 func isErrorFactory(obj types.Object) bool {

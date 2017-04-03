@@ -1,6 +1,9 @@
 package checkerror
 
-import "go/types"
+import (
+	"go/types"
+	"sort"
+)
 
 type errorFactoryList struct {
 	objpool  map[types.Object]bool
@@ -33,4 +36,17 @@ func (t *errorFactoryList) removeName(name string) {
 func (t *errorFactoryList) isEmpty() bool {
 	t.ensureInit()
 	return len(t.objpool) < 1 && len(t.namepool) < 1
+}
+
+func (t *errorFactoryList) sortedObjects() []types.Object {
+	sorted := []types.Object{}
+	names := []string{}
+	for name := range t.namepool {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		sorted = append(sorted, t.namepool[name])
+	}
+	return sorted
 }

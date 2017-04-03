@@ -53,6 +53,7 @@ func Test_errortest(t *testing.T) {
 
 	pkglist, err := pkgutil.FindAllSubPackages("errortest", "")
 	require.NoError(err)
+	require.EqualValues(pkglist.Len(), 3)
 	errs := Check(pkglist, false)
 	require.Len(errs, 2)
 }
@@ -63,6 +64,7 @@ func Test_noerrfac(t *testing.T) {
 
 	pkglist, err := pkgutil.FindAllSubPackages("noerrfac", "")
 	require.NoError(err)
+	require.EqualValues(pkglist.Len(), 1)
 	errs := Check(pkglist, false)
 	require.Len(errs, 1)
 	errs = Check(pkglist, true)
@@ -75,6 +77,7 @@ func Test_pkgtest(t *testing.T) {
 
 	pkglist, err := pkgutil.FindAllSubPackages("pkgtest", "")
 	require.NoError(err)
+	require.EqualValues(pkglist.Len(), 4)
 	errs := Check(pkglist, false)
 	require.Len(errs, 0)
 }
