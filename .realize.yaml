@@ -1,0 +1,15 @@
+schema:
+- name: gobuilder
+  path: .
+  commands:
+    install:
+      status: true
+  watcher:
+    paths:
+    - /
+    extensions:
+    - go
+    ignored_paths:
+    - .git
+    - .realize.yaml
+    - vendor

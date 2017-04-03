@@ -7,9 +7,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/tsaikd/KDGoLib/errutil"
+	"github.com/tsaikd/KDGoLib/pkgutil"
 	"github.com/tsaikd/gobuilder/executil"
 	"github.com/tsaikd/tools/go/vcs"
 )
@@ -22,6 +24,8 @@ var (
 const vcsNameGit = "Git"
 
 var buildContext = build.Default
+
+var reModPackageImportPath = regexp.MustCompile(`/go/pkg/mod/[^@]+@([^/-]+)-([^/-]+)-([^/-]+)`)
 
 // JSON contains godeps config json information
 type JSON struct {
@@ -64,6 +68,8 @@ func (t *JSON) addDep(importPath string, pkg *build.Package) (err error) {
 	switch importPath {
 	case "C":
 		return
+	case ".": // TODO support import mod dependent libs
+		return
 	}
 
 	deppkg, err := getPackageInfo(importPath, pkg.Dir)
@@ -105,6 +111,12 @@ func NewJSON(dir string) (result JSON, err error) {
 		return
 	}
 
+	if pkgutil.IsGoModDir(dir) {
+		if result, err = newGoModJSON(dir); err == nil {
+			return
+		}
+	}
+
 	if result.pkg, err = buildContext.ImportDir(dir, 0); err != nil {
 		return
 	}
@@ -115,12 +127,39 @@ func NewJSON(dir string) (result JSON, err error) {
 		return
 	}
 
-	result.addedDepRoot = map[string]bool{
-		result.vcsRoot: true,
+	if result.vcsRoot != "" {
+		result.addedDepRoot = map[string]bool{
+			result.vcsRoot: true,
+		}
 	}
 
 	if err = result.addDep(result.ImportPath, result.pkg); err != nil {
 		return
+	}
+
+	return
+}
+
+func newGoModJSON(dir string) (result JSON, err error) {
+	if result.pkg, err = buildContext.ImportDir(dir, 0); err != nil {
+		return
+	}
+
+	if err = getModInfo(&result.packageInfo); err != nil {
+		return
+	}
+
+	goMods, err := pkgutil.ParseGoMod(dir)
+	if err != nil {
+		return
+	}
+
+	for _, mod := range goMods {
+		if mod.Main {
+			result.ImportPath = mod.Path
+			continue
+		}
+		result.Deps = append(result.Deps, module2depsType(mod))
 	}
 
 	return
@@ -146,6 +185,10 @@ func getPackageInfo(importPath string, dir string) (pkginfo packageInfo, err err
 }
 
 func getVCSInfo(pkginfo *packageInfo) (err error) {
+	if pkginfo.ImportPath == "." {
+		return getModInfo(pkginfo)
+	}
+
 	repo, err := vcs.RepoRootForImportPath(pkginfo.ImportPath, false)
 	if err != nil {
 		return ErrorGetRepoInfo1.New(err, pkginfo.ImportPath)
@@ -153,6 +196,14 @@ func getVCSInfo(pkginfo *packageInfo) (err error) {
 
 	pkginfo.vcsRoot = repo.Root
 
+	modMatches := reModPackageImportPath.FindAllStringSubmatch(pkginfo.pkg.Dir, -1)
+	if len(modMatches) > 0 {
+		if groups := modMatches[0]; len(groups) == 4 {
+			pkginfo.Rev = groups[3]
+			pkginfo.RevTime = groups[2]
+			return
+		}
+	}
 	if pkginfo.Rev, err = repo.VCS.Identify(pkginfo.pkg.Dir); err != nil {
 		return
 	}

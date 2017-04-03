@@ -25,9 +25,17 @@ func Build(logger logutil.LevelLogger, hashLen int64, timeFormat string, name st
 
 	// get Godeps/Godeps.json content
 	logger.Debugln("get current godeps info")
-	godeps, err := getGodepsJSON()
+	godepsJSONData, godepsJSON, err := getGodepsJSON()
 	if err != nil {
 		return errutil.New("get repository godeps info failed", err)
+	}
+
+	// ensure name is not empty
+	if name == "" {
+		name = godepsJSON.ImportPath
+	}
+	if name == "" {
+		name = "."
 	}
 
 	// prepare ldflags for go build
@@ -60,7 +68,7 @@ func Build(logger logutil.LevelLogger, hashLen int64, timeFormat string, name st
 	ldflagPairs = append(ldflagPairs, fmt.Sprintf(
 		`-X '%s.GODEPS=%s'`,
 		verpkgname,
-		godeps,
+		godepsJSONData,
 	))
 	ldflags := strings.Join(ldflagPairs, " ")
 
@@ -94,11 +102,16 @@ func getVersionPackageName() (pkgname string) {
 	return verpkg.ImportPath
 }
 
-func getGodepsJSON() (jsondata []byte, err error) {
-	godepsJSON, err := deputil.NewJSON(".")
+func getGodepsJSON() (jsondata []byte, godepsJSON deputil.JSON, err error) {
+	godepsJSON, err = deputil.NewJSON(".")
 	if err != nil {
 		return
 	}
 
-	return json.Marshal(godepsJSON)
+	jsondata, err = json.Marshal(godepsJSON)
+	if err != nil {
+		return
+	}
+
+	return
 }

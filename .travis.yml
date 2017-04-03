@@ -1,14 +1,22 @@
 language: go
 
 go:
-  - "1.7"
-  - "1.8"
-  - "1.9"
-  - "1.10"
-  - "tip"
+  - "1.12"
+  - "master"
+
+env:
+  - GO111MODULE=on
+
+cache:
+  directories:
+    - $HOME/.cache/go-build
+    - $HOME/gopath/pkg/mod
 
 install:
-  - go install . ./checkerror/vendor/...
+  - go get
+  - go install
+  - GO111MODULE=auto go get github.com/tsaikd/KDGoLib/errutil
+  - GO111MODULE=auto go install ./checkerror/vendor/...
   - gobuilder version -c ">=0.1.9" &>/dev/null || go get -u -v "github.com/tsaikd/gobuilder"
 
 script:

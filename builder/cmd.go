@@ -12,10 +12,11 @@ import (
 // GoGet run go get command
 func GoGet(logger logutil.LevelLogger, all bool, test bool) (err error) {
 	cmdArgs := []string{"get", "-v"}
+	isMod := pkgutil.IsGoModDir("")
 	if test {
 		cmdArgs = append(cmdArgs, "-t")
 	}
-	if all {
+	if all && !isMod {
 		var dirs []string
 		if dirs, err = getAllSubPackagesRelDir(""); err != nil {
 			return
@@ -34,13 +35,18 @@ func GoGet(logger logutil.LevelLogger, all bool, test bool) (err error) {
 // GoTest run go test for all sub packages, exclude vendor
 func GoTest(logger logutil.LevelLogger, all bool) (err error) {
 	cmdArgs := []string{"test", "-v"}
+	isMod := pkgutil.IsGoModDir("")
 	if all {
-		var dirs []string
-		if dirs, err = getAllSubPackagesRelDir(""); err != nil {
-			return
-		}
-		if len(dirs) > 0 {
-			cmdArgs = append(cmdArgs, getAllCmdArgsForPackages(dirs)...)
+		if isMod {
+			cmdArgs = append(cmdArgs, "./...")
+		} else {
+			var dirs []string
+			if dirs, err = getAllSubPackagesRelDir(""); err != nil {
+				return
+			}
+			if len(dirs) > 0 {
+				cmdArgs = append(cmdArgs, getAllCmdArgsForPackages(dirs)...)
+			}
 		}
 	}
 	logger.Debug("go " + strings.Join(cmdArgs, " "))

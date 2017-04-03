@@ -1,6 +1,7 @@
 package executil
 
 import (
+	"bytes"
 	"os"
 	"os/exec"
 
@@ -52,4 +53,14 @@ func StackWorkDir(dir string, perr *error) (recover func()) {
 			*perr = errutil.NewErrors(err, *perr)
 		}
 	}
+}
+
+// RunBufferOut run command and output to buffer
+func RunBufferOut(name string, arg ...string) (out *bytes.Buffer, err error) {
+	out = &bytes.Buffer{}
+	cmd := exec.Command(name, arg...)
+	cmd.Stdout = out
+	cmd.Stderr = Stderr
+	err = cmd.Run()
+	return
 }

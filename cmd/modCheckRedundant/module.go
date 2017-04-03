@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
-	"github.com/tsaikd/KDGoLib/pkgutil"
+	"github.com/tsaikd/gobuilder/cmd/cmdutil"
 	"github.com/tsaikd/gobuilder/deputil"
 	"github.com/tsaikd/gobuilder/logger"
 )
@@ -26,7 +26,7 @@ checkredundant ./checkfmt/...
 		logger.Module,
 	},
 	RunE: func(ctx context.Context, cmd *cobra.Command, args []string) error {
-		pkglist, err := pkgutil.ParsePackagePaths("", args...)
+		pkglist, err := cmdutil.ParsePackagePaths("", args...)
 		if err != nil {
 			return err
 		}

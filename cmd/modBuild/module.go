@@ -2,13 +2,10 @@ package modBuild
 
 import (
 	"context"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
-	"github.com/tsaikd/KDGoLib/version"
 	"github.com/tsaikd/gobuilder/builder"
 	"github.com/tsaikd/gobuilder/cmd/modFlags"
 	"github.com/tsaikd/gobuilder/logger"
@@ -57,13 +54,6 @@ var Module = &cobrather.Module{
 		flagVersion,
 	},
 	RunE: func(ctx context.Context, cmd *cobra.Command, args []string) error {
-		name := flagName.String()
-		if name == "" {
-			name = version.NAME
-		}
-		if name == "" {
-			name = filepath.Base(os.Args[0])
-		}
-		return builder.Build(logger.Logger, flagHashLen.Int64(), flagTimeFmt.String(), name, flagVersion.String())
+		return builder.Build(logger.Logger, flagHashLen.Int64(), flagTimeFmt.String(), flagName.String(), flagVersion.String())
 	},
 }

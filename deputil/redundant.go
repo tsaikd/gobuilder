@@ -1,8 +1,10 @@
 package deputil
 
 import (
+	"go/build"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/tsaikd/KDGoLib/errutil"
 )
@@ -22,6 +24,10 @@ func CheckRedundant(dir string) (err error) {
 }
 
 func checkRedundant(dir string, redudant *[]error) (err error) {
+	if isGoModPath(dir) {
+		return nil
+	}
+
 	jsonfile, err := parsePackageGoDeps(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -56,4 +62,10 @@ func isImportedPath(importPath string, deps []depsType) bool {
 		}
 	}
 	return false
+}
+
+var goModPath = filepath.Join(build.Default.GOPATH, "pkg", "mod")
+
+func isGoModPath(dir string) bool {
+	return strings.HasPrefix(dir, goModPath)
 }
