@@ -2,6 +2,7 @@ package builder
 
 import (
 	"path/filepath"
+	"strings"
 
 	"github.com/tsaikd/KDGoLib/logutil"
 	"github.com/tsaikd/KDGoLib/pkgutil"
@@ -10,14 +11,21 @@ import (
 
 // GoGet run go get command
 func GoGet(logger logutil.LevelLogger, all bool, test bool) (err error) {
-	getArgs := []string{"get", "-v"}
+	cmdArgs := []string{"get", "-v"}
 	if test {
-		getArgs = append(getArgs, "-t")
+		cmdArgs = append(cmdArgs, "-t")
 	}
 	if all {
-		getArgs = append(getArgs, "./...")
+		var dirs []string
+		if dirs, err = getAllSubPackagesRelDir(""); err != nil {
+			return
+		}
+		if len(dirs) > 0 {
+			cmdArgs = append(cmdArgs, getAllCmdArgsForPackages(dirs)...)
+		}
 	}
-	if err = executil.Run("go", getArgs...); err != nil {
+	logger.Debug("go " + strings.Join(cmdArgs, " "))
+	if err = executil.Run("go", cmdArgs...); err != nil {
 		return
 	}
 	return
@@ -25,11 +33,26 @@ func GoGet(logger logutil.LevelLogger, all bool, test bool) (err error) {
 
 // GoTest run go test for all sub packages, exclude vendor
 func GoTest(logger logutil.LevelLogger, all bool) (err error) {
-	if !all {
-		return executil.Run("go", "test", "-v")
+	cmdArgs := []string{"test", "-v"}
+	if all {
+		var dirs []string
+		if dirs, err = getAllSubPackagesRelDir(""); err != nil {
+			return
+		}
+		if len(dirs) > 0 {
+			cmdArgs = append(cmdArgs, getAllCmdArgsForPackages(dirs)...)
+		}
 	}
+	logger.Debug("go " + strings.Join(cmdArgs, " "))
+	if err = executil.Run("go", cmdArgs...); err != nil {
+		return
+	}
+	return
+}
 
-	srcDir, err := filepath.Abs("")
+// getAllSubPackagesRelDir return sub packages exclude . vendor
+func getAllSubPackagesRelDir(baseDir string) (dirs []string, err error) {
+	srcDir, err := filepath.Abs(baseDir)
 	if err != nil {
 		return
 	}
@@ -37,15 +60,25 @@ func GoTest(logger logutil.LevelLogger, all bool) (err error) {
 	if err != nil {
 		return
 	}
-	var testpath string
+
+	var reldir string
 	for _, pkg := range pkglist.Sorted() {
-		if testpath, err = filepath.Rel(srcDir, pkg.Dir); err != nil {
+		if reldir, err = filepath.Rel(srcDir, pkg.Dir); err != nil {
 			return
 		}
-		logger.Debugf("go test -v ./%s", testpath)
-		if err = executil.Run("go", "test", "-v", "./"+testpath); err != nil {
-			return
+		dirs = append(dirs, reldir)
+	}
+	return dirs, nil
+}
+
+func getAllCmdArgsForPackages(pkgnames []string) []string {
+	res := make([]string, len(pkgnames))
+	for i, name := range pkgnames {
+		if name == "." {
+			res[i] = "."
+		} else {
+			res[i] = "./" + name
 		}
 	}
-	return nil
+	return res
 }
