@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 )
@@ -12,7 +14,7 @@ var Module = &cobrather.Module{
 	Commands: []*cobrather.Module{
 		cobrather.VersionModule,
 	},
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(ctx context.Context, cmd *cobra.Command, args []string) error {
 		return nil
 	},
 }

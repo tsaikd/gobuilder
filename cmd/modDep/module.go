@@ -1,6 +1,7 @@
 package modDep
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -30,7 +31,7 @@ var Module = &cobrather.Module{
 	Flags: []cobrather.Flag{
 		flagShow,
 	},
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(ctx context.Context, cmd *cobra.Command, args []string) error {
 		if flagShow.Bool() {
 			return showDepJSON()
 		}

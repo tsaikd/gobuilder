@@ -1,6 +1,7 @@
 package modCheckRedundant
 
 import (
+	"context"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -24,7 +25,7 @@ checkredundant ./checkfmt/...
 	Dependencies: []*cobrather.Module{
 		logger.Module,
 	},
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(ctx context.Context, cmd *cobra.Command, args []string) error {
 		pkglist, err := pkgutil.ParsePackagePaths("", args...)
 		if err != nil {
 			return err

@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"context"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
@@ -33,7 +35,7 @@ var Module = &cobrather.Module{
 		flagDebug,
 		flagTravis,
 	},
-	RunE: func(cmd *cobra.Command, args []string) (err error) {
+	RunE: func(ctx context.Context, cmd *cobra.Command, args []string) (err error) {
 		if Debug() {
 			Logger.Level = logrus.DebugLevel
 		}

@@ -1,6 +1,7 @@
 package modBuild
 
 import (
+	"context"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -36,7 +37,7 @@ var Module = &cobrather.Module{
 		flagHashLen,
 		flagTimeFmt,
 	},
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(ctx context.Context, cmd *cobra.Command, args []string) error {
 		return builder.Build(logger.Logger, flagHashLen.Int64(), flagTimeFmt.String())
 	},
 }

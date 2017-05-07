@@ -1,6 +1,7 @@
 package modCheckError
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -37,7 +38,7 @@ checkerror ./checkerror/...
 	Flags: []cobrather.Flag{
 		flagStrict,
 	},
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(ctx context.Context, cmd *cobra.Command, args []string) error {
 		pkglist, err := cmdutil.ParsePackagePaths("", args...)
 		if err != nil {
 			return err

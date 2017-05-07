@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/gobuilder/cmd/modBuild"
@@ -45,7 +47,7 @@ var Module = &cobrather.Module{
 	Flags: []cobrather.Flag{
 		flagCheck,
 	},
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(ctx context.Context, cmd *cobra.Command, args []string) error {
 		runFuncs := []func(cmd *cobra.Command, args []string) error{}
 
 		cmdModules := []*cobrather.Module{}
@@ -72,16 +74,16 @@ var Module = &cobrather.Module{
 		}
 
 		depModules := cobrather.ListDeps(cobrather.OIncludeDepInCommand, cmdModules...)
-		preRun := cobrather.GenRunE(depModules...)
+		preRun := cobrather.GenRunE(ctx, depModules...)
 		runFuncs = append(runFuncs, preRun)
 
-		run := cobrather.GenRunE(cmdModules...)
+		run := cobrather.GenRunE(ctx, cmdModules...)
 		runFuncs = append(runFuncs, run)
 
-		postRun := cobrather.GenPostRunE(cmdModules...)
+		postRun := cobrather.GenPostRunE(ctx, cmdModules...)
 		runFuncs = append(runFuncs, postRun)
 
-		depPostRun := cobrather.GenPostRunE(depModules...)
+		depPostRun := cobrather.GenPostRunE(ctx, depModules...)
 		runFuncs = append(runFuncs, depPostRun)
 
 		for _, fn := range runFuncs {

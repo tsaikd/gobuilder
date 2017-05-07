@@ -1,6 +1,7 @@
 package modRestore
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 
@@ -32,7 +33,7 @@ var Module = &cobrather.Module{
 	Flags: []cobrather.Flag{
 		flagToVendor,
 	},
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(ctx context.Context, cmd *cobra.Command, args []string) error {
 		if _, err := os.Stat(filepath.Join("Godeps", "Godeps.json")); os.IsNotExist(err) {
 			return nil
 		}

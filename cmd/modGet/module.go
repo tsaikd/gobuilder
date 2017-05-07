@@ -1,6 +1,8 @@
 package modGet
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 	"github.com/tsaikd/KDGoLib/cliutil/cobrather"
 	"github.com/tsaikd/gobuilder/builder"
@@ -16,7 +18,7 @@ var Module = &cobrather.Module{
 		logger.Module,
 		modFlags.Module,
 	},
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(ctx context.Context, cmd *cobra.Command, args []string) error {
 		logger.Logger.Debugln("go get dependent packages")
 		return builder.GoGet(logger.Logger, modFlags.All(), modFlags.Test())
 	},
