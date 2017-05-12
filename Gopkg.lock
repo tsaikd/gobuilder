@@ -4,7 +4,7 @@ memo = "a1650d5e9e705a2c93713f3982014ad0b8863b36869ff167b02bfd52c47939f5"
   branch = "master"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
-  revision = "5b60b3d3ee017ed00bcd0225fcca7acab767844b"
+  revision = "5e5dc898656f695e2a086b8e12559febbfc01562"
 
 [[projects]]
   name = "github.com/codegangsta/inject"
@@ -34,7 +34,7 @@ memo = "a1650d5e9e705a2c93713f3982014ad0b8863b36869ff167b02bfd52c47939f5"
   branch = "master"
   name = "github.com/hashicorp/hcl"
   packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
-  revision = "a4b07c25de5ff55ad3b8936cea69a79a3d95a855"
+  revision = "392dba7d905ed5d04a5794ba89f558b27e2ba1ca"
 
 [[projects]]
   branch = "master"
@@ -46,7 +46,7 @@ memo = "a1650d5e9e705a2c93713f3982014ad0b8863b36869ff167b02bfd52c47939f5"
   branch = "master"
   name = "github.com/kardianos/osext"
   packages = ["."]
-  revision = "9d302b58e975387d0b4d9be876622c86cefe64be"
+  revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
 
 [[projects]]
   name = "github.com/magiconair/properties"
@@ -94,19 +94,19 @@ memo = "a1650d5e9e705a2c93713f3982014ad0b8863b36869ff167b02bfd52c47939f5"
   branch = "master"
   name = "github.com/spf13/cobra"
   packages = ["."]
-  revision = "d83a1d7ccd00a9e1b5d234653837b498b9b27abd"
+  revision = "4cdb38c072b86bf795d2c81de50784d9fdd6eb77"
 
 [[projects]]
   branch = "master"
   name = "github.com/spf13/jwalterweatherman"
   packages = ["."]
-  revision = "fa7ca7e836cf3a8bb4ebf799f472c12d7e903d66"
+  revision = "8f07c835e5cc1450c082fe3a439cf87b0cbb2d99"
 
 [[projects]]
   branch = "master"
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "80fe0fb4eba54167e2ccae1c6c950e72abf61b73"
+  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
 
 [[projects]]
   branch = "master"
@@ -124,25 +124,25 @@ memo = "a1650d5e9e705a2c93713f3982014ad0b8863b36869ff167b02bfd52c47939f5"
   branch = "master"
   name = "github.com/tsaikd/KDGoLib"
   packages = ["cliutil/cobrather","errutil","futil","logrusutil","logutil","pkgutil","runtimecaller","version"]
-  revision = "9688f38e7848131abde11e10ff7423545712150a"
+  revision = "3fc7ff8c2fa8bc98cdfecb550ea67c8dd6fc8438"
 
 [[projects]]
   branch = "master"
   name = "github.com/tsaikd/tools"
   packages = ["go/vcs"]
-  revision = "0319082e7c60d29ae5de84d24964808a14a98a97"
+  revision = "89bda135af17111324153466d02a922ca1515eeb"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "9ccfe848b9db8435a24c424abbc07a921adf1df5"
+  revision = "1e99a4f9d247b28c670884b9a8d6801f39a47b77"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
   packages = ["internal/gen","internal/triegen","internal/ucd","transform","unicode/cldr","unicode/norm"]
-  revision = "470f45bf29f4147d6fbd7dfd0a02a848e49f5bf4"
+  revision = "19e51611da83d6be54ddafce4a4af510cb3e9ea4"
 
 [[projects]]
   branch = "v2"
