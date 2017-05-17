@@ -18,6 +18,7 @@ var (
 		Name:    "tovendor",
 		Default: false,
 		Usage:   "Restore package to vendor directory instead of GOPATH if vendor directory not found",
+		EnvVar:  "GOBUILDER_RESTORE_TOVENDOR",
 	}
 )
 

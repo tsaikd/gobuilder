@@ -17,11 +17,13 @@ var (
 		Name:    "hashlen",
 		Default: 6,
 		Usage:   "Builder extract version control hash length",
+		EnvVar:  "GOBUILDER_BUILD_HASHLEN",
 	}
 	flagTimeFmt = &cobrather.StringFlag{
 		Name:    "timefmt",
 		Default: time.RFC1123,
 		Usage:   "Build time format",
+		EnvVar:  "GOBUILDER_BUILD_TIMEFMT",
 	}
 )
 

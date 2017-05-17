@@ -16,8 +16,9 @@ import (
 // command line flags
 var (
 	flagStrict = &cobrather.BoolFlag{
-		Name:  "strict",
-		Usage: "Return error if no error factory found",
+		Name:   "strict",
+		Usage:  "Return error if no error factory found",
+		EnvVar: "GOBUILDER_CHECK_STRICT",
 	}
 )
 

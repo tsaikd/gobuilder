@@ -18,6 +18,7 @@ var (
 		Name:    "show",
 		Default: false,
 		Usage:   "Show only dependencies json, not really check",
+		EnvVar:  "GOBUILDER_DEP_SHOW",
 	}
 )
 
