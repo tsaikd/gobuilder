@@ -157,3 +157,12 @@ $ ./example version
 	}
 }
 ```
+
+## develop gobuilder
+
+* using [dep](https://github.com/golang/dep) tool before commit
+
+```
+dep ensure
+dep prune
+```
