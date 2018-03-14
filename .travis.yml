@@ -1,15 +1,15 @@
 language: go
 
 go:
-  - 1.7
-  - 1.8
-  - 1.9
-  - 1.10
-  - tip
+  - "1.7"
+  - "1.8"
+  - "1.9"
+  - "1.10"
+  - "tip"
 
 install:
   - go install . ./checkerror/vendor/...
-  - gobuilder version -c ">=0.1.8" &>/dev/null || go get -u -v "github.com/tsaikd/gobuilder"
+  - gobuilder version -c ">=0.1.9" &>/dev/null || go get -u -v "github.com/tsaikd/gobuilder"
 
 script:
   - gobuilder --check --test --all
