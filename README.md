@@ -164,5 +164,4 @@ $ ./example version
 
 ```
 dep ensure
-dep prune
 ```
