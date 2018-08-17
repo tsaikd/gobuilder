@@ -4,4 +4,5 @@ import "github.com/tsaikd/KDGoLib/version"
 
 func init() {
 	version.VERSION = "0.1.9"
+	version.NAME = "gobuilder"
 }
