@@ -15,7 +15,7 @@ import (
 )
 
 // Build golang application source code
-func Build(logger logutil.LevelLogger, hashLen int64, timeFormat string, version string) (err error) {
+func Build(logger logutil.LevelLogger, hashLen int64, timeFormat string, name string, version string) (err error) {
 	// get current git hash
 	logger.Debugln("get project version hash")
 	githash, err := getIdentify(hashLen)
@@ -43,6 +43,13 @@ func Build(logger logutil.LevelLogger, hashLen int64, timeFormat string, version
 		verpkgname,
 		githash,
 	))
+	if name != "" {
+		ldflagPairs = append(ldflagPairs, fmt.Sprintf(
+			`-X '%s.NAME=%s'`,
+			verpkgname,
+			name,
+		))
+	}
 	if version != "" {
 		ldflagPairs = append(ldflagPairs, fmt.Sprintf(
 			`-X '%s.VERSION=%s'`,
