@@ -3,6 +3,6 @@ package main
 import "github.com/tsaikd/KDGoLib/version"
 
 func init() {
-	version.VERSION = "0.1.9"
 	version.NAME = "gobuilder"
+	version.VERSION = "0.2.0"
 }
