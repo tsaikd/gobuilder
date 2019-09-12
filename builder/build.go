@@ -87,6 +87,10 @@ func getIdentify(hashLen int64) (identify string, err error) {
 		return
 	}
 
+	if int64(len(godepsJSON.Rev)) < hashLen {
+		return godepsJSON.Rev, nil
+	}
+
 	return godepsJSON.Rev[:hashLen], nil
 }
 
