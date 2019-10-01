@@ -15,12 +15,14 @@ import (
 )
 
 // Build golang application source code
-func Build(logger logutil.LevelLogger, hashLen int64, timeFormat string, name string, version string) (err error) {
-	// get current git hash
-	logger.Debugln("get project version hash")
-	githash, err := getIdentify(hashLen)
-	if err != nil {
-		return errutil.New("get repository identify failed", err)
+func Build(logger logutil.LevelLogger, hashLen int64, timeFormat string, name string, version string, revision string) (err error) {
+	if revision == "" {
+		// get current git hash
+		logger.Debugln("get project version hash")
+		revision, err = getIdentify(hashLen)
+		if err != nil {
+			return errutil.New("get repository identify failed", err)
+		}
 	}
 
 	// get Godeps/Godeps.json content
@@ -49,7 +51,7 @@ func Build(logger logutil.LevelLogger, hashLen int64, timeFormat string, name st
 	ldflagPairs = append(ldflagPairs, fmt.Sprintf(
 		`-X '%s.GITCOMMIT=%s'`,
 		verpkgname,
-		githash,
+		revision,
 	))
 	if name != "" {
 		ldflagPairs = append(ldflagPairs, fmt.Sprintf(

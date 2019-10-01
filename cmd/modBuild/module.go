@@ -37,6 +37,12 @@ var (
 		Usage:   "Build with specific version",
 		EnvVar:  "GOBUILDER_BUILD_VERSION",
 	}
+	flagRevision = &cobrather.StringFlag{
+		Name:    "revision",
+		Default: "",
+		Usage:   "Build with specific revision",
+		EnvVar:  "GOBUILDER_BUILD_REVISION",
+	}
 )
 
 // Module info
@@ -52,8 +58,9 @@ var Module = &cobrather.Module{
 		flagTimeFmt,
 		flagName,
 		flagVersion,
+		flagRevision,
 	},
 	RunE: func(ctx context.Context, cmd *cobra.Command, args []string) error {
-		return builder.Build(logger.Logger, flagHashLen.Int64(), flagTimeFmt.String(), flagName.String(), flagVersion.String())
+		return builder.Build(logger.Logger, flagHashLen.Int64(), flagTimeFmt.String(), flagName.String(), flagVersion.String(), flagRevision.String())
 	},
 }
